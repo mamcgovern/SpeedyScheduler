@@ -1,5 +1,3 @@
-import { useMemo, useState } from "react";
-import initialEvents from "../data/events.json";
 import DaySchedule from "../components/DaySchedule";
 import {
     findEventConflicts,
@@ -7,6 +5,7 @@ import {
     getNearestEventDay,
     parseEventDate,
 } from "../utils/eventUtils";
+import { useMemo, useState } from "react";
 
 const FILTERS = [
     "All",
@@ -18,8 +17,7 @@ const FILTERS = [
     "General",
 ];
 
-function SchedulerPage() {
-    const [events, setEvents] = useState(initialEvents);
+function SchedulerPage({ events, setEvents }) {
     const [activeFilter, setActiveFilter] = useState("All");
     const [conflictMessage, setConflictMessage] = useState("");
 
@@ -31,7 +29,7 @@ function SchedulerPage() {
     }, [events]);
 
     const [activeDay, setActiveDay] = useState(() =>
-        getNearestEventDay(initialEvents),
+        getNearestEventDay(events),
     );
 
     function toggleEvent(eventId) {
@@ -143,7 +141,7 @@ function SchedulerPage() {
                     Build your itinerary without missing the events that matter most.
                 </p>
             </header>
-            
+
             <section className="schedule-summary">
                 <div>
                     <span className="schedule-summary__number">

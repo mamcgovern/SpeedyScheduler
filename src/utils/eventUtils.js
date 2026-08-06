@@ -184,3 +184,70 @@ export function formatDayTab(dateString) {
     day: "numeric",
   });
 }
+
+export function parseEventDateTime(event) {
+  if (!event?.day || !event?.start) {
+    return null;
+  }
+
+  const [year, month, day] = event.day
+    .split("-")
+    .map(Number);
+
+  const [time, period] = event.start
+    .trim()
+    .split(" ");
+
+  let [hour, minute] = time
+    .split(":")
+    .map(Number);
+
+  if (period === "AM" && hour === 12) {
+    hour = 0;
+  }
+
+  if (period === "PM" && hour !== 12) {
+    hour += 12;
+  }
+
+  return new Date(
+    year,
+    month - 1,
+    day,
+    hour,
+    minute,
+  );
+}
+
+export function getNextScheduledEvent(events, now = new Date()) {
+  return events
+    .filter((event) => event.selected && event.start)
+    .map((event) => ({
+      ...event,
+      dateTime: parseEventDateTime(event),
+    }))
+    .filter(
+      (event) =>
+        event.dateTime &&
+        event.dateTime >= now,
+    )
+    .sort(
+      (firstEvent, secondEvent) =>
+        firstEvent.dateTime - secondEvent.dateTime,
+    )[0] ?? null;
+}
+
+export function formatEventDateWithYear(dateString) {
+  const date = parseEventDate(dateString);
+
+  if (!date || Number.isNaN(date.getTime())) {
+    return dateString;
+  }
+
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
