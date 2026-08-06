@@ -1,4 +1,8 @@
-import { useMemo, useState } from "react";
+import {
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import spottersGuideData from "../data/spottersGuide.json";
 
 const SERIES_OPTIONS = [
@@ -11,6 +15,9 @@ const SERIES_OPTIONS = [
         label: "NASCAR O'Reilly Auto Parts Series",
     },
 ];
+
+const FAVORITES_STORAGE_KEY =
+    "speedySchedulerFavoriteDrivers";
 
 function normalizeSeriesData(seriesData) {
     if (!Array.isArray(seriesData)) {
@@ -27,28 +34,83 @@ function normalizeSeriesData(seriesData) {
         );
 }
 
+function loadFavoriteDrivers() {
+    try {
+        const savedFavorites = localStorage.getItem(
+            FAVORITES_STORAGE_KEY
+        );
+
+        if (!savedFavorites) {
+            return [];
+        }
+
+        const parsedFavorites =
+            JSON.parse(savedFavorites);
+
+        return Array.isArray(parsedFavorites)
+            ? parsedFavorites.slice(0, 3)
+            : [];
+    } catch (error) {
+        console.error(
+            "Could not load favorite drivers:",
+            error
+        );
+
+        return [];
+    }
+}
+
 function SpottersGuidePage() {
     const [activeSeries, setActiveSeries] =
         useState("Cup");
+
     const [searchTerm, setSearchTerm] =
         useState("");
-    const [manufacturerFilter, setManufacturerFilter] =
-        useState("All");
 
-    const seriesEntries = useMemo(
-        () =>
-            normalizeSeriesData(
-                spottersGuideData[activeSeries]
-            ),
-        [activeSeries]
-    );
+    const [
+        manufacturerFilter,
+        setManufacturerFilter,
+    ] = useState("All");
+
+    const [
+        favoriteDrivers,
+        setFavoriteDrivers,
+    ] = useState(loadFavoriteDrivers);
+
+    const [
+        favoriteMessage,
+        setFavoriteMessage,
+    ] = useState("");
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(
+                FAVORITES_STORAGE_KEY,
+                JSON.stringify(favoriteDrivers)
+            );
+        } catch (error) {
+            console.error(
+                "Could not save favorite drivers:",
+                error
+            );
+        }
+    }, [favoriteDrivers]);
+
+    const seriesEntries = useMemo(() => {
+        return normalizeSeriesData(
+            spottersGuideData[activeSeries]
+        );
+    }, [activeSeries]);
 
     const manufacturers = useMemo(() => {
         return [
             "All",
             ...new Set(
                 seriesEntries
-                    .map((entry) => entry.manufacturer)
+                    .map(
+                        (entry) =>
+                            entry.manufacturer
+                    )
                     .filter(Boolean)
             ),
         ];
@@ -62,9 +124,10 @@ function SpottersGuidePage() {
         return seriesEntries
             .filter((entry) => {
                 const matchesManufacturer =
-                    manufacturerFilter === "All" ||
+                    manufacturerFilter ===
+                    "All" ||
                     entry.manufacturer ===
-                        manufacturerFilter;
+                    manufacturerFilter;
 
                 const searchableText = [
                     entry.driver,
@@ -88,21 +151,117 @@ function SpottersGuidePage() {
                 );
             })
             .sort(
-                (firstEntry, secondEntry) =>
-                    Number(firstEntry.number) -
-                    Number(secondEntry.number)
+                (
+                    firstEntry,
+                    secondEntry
+                ) => {
+                    const firstFavoriteIndex =
+                        favoriteDrivers.indexOf(
+                            firstEntry.driver
+                        );
+
+                    const secondFavoriteIndex =
+                        favoriteDrivers.indexOf(
+                            secondEntry.driver
+                        );
+
+                    const firstIsFavorite =
+                        firstFavoriteIndex !== -1;
+
+                    const secondIsFavorite =
+                        secondFavoriteIndex !== -1;
+
+                    if (
+                        firstIsFavorite &&
+                        !secondIsFavorite
+                    ) {
+                        return -1;
+                    }
+
+                    if (
+                        !firstIsFavorite &&
+                        secondIsFavorite
+                    ) {
+                        return 1;
+                    }
+
+                    if (
+                        firstIsFavorite &&
+                        secondIsFavorite
+                    ) {
+                        return (
+                            firstFavoriteIndex -
+                            secondFavoriteIndex
+                        );
+                    }
+
+                    return (
+                        Number(
+                            firstEntry.number
+                        ) -
+                        Number(
+                            secondEntry.number
+                        )
+                    );
+                }
             );
     }, [
         seriesEntries,
         searchTerm,
         manufacturerFilter,
+        favoriteDrivers,
     ]);
 
     function changeSeries(series) {
         setActiveSeries(series);
         setSearchTerm("");
         setManufacturerFilter("All");
+        setFavoriteMessage("");
     }
+
+    function toggleFavorite(driverName) {
+        const isAlreadyFavorite =
+            favoriteDrivers.includes(
+                driverName
+            );
+
+        if (isAlreadyFavorite) {
+            setFavoriteDrivers(
+                (currentFavorites) =>
+                    currentFavorites.filter(
+                        (driver) =>
+                            driver !==
+                            driverName
+                    )
+            );
+
+            setFavoriteMessage("");
+            return;
+        }
+
+        if (favoriteDrivers.length >= 3) {
+            setFavoriteMessage(
+                "You can favorite up to three drivers."
+            );
+
+            return;
+        }
+
+        setFavoriteDrivers(
+            (currentFavorites) => [
+                ...currentFavorites,
+                driverName,
+            ]
+        );
+
+        setFavoriteMessage("");
+    }
+
+    const activeSeriesLabel =
+        SERIES_OPTIONS.find(
+            (series) =>
+                series.value === activeSeries
+        )?.label ?? activeSeries;
 
     return (
         <div className="spotters-page">
@@ -114,9 +273,10 @@ function SpottersGuidePage() {
                 <h1>Spotter&apos;s Guide</h1>
 
                 <p>
-                    Browse the drivers, car numbers,
-                    paint schemes, manufacturers, and
-                    teams competing throughout the
+                    Browse the drivers, car
+                    numbers, paint schemes,
+                    manufacturers, and teams
+                    competing throughout the
                     weekend.
                 </p>
             </header>
@@ -125,23 +285,107 @@ function SpottersGuidePage() {
                 className="series-tabs"
                 aria-label="Choose racing series"
             >
-                {SERIES_OPTIONS.map((series) => (
-                    <button
-                        key={series.value}
-                        type="button"
-                        className={
-                            activeSeries === series.value
-                                ? "series-tab series-tab--active"
-                                : "series-tab"
-                        }
-                        onClick={() =>
-                            changeSeries(series.value)
-                        }
-                    >
-                        {series.label}
-                    </button>
-                ))}
+                {SERIES_OPTIONS.map(
+                    (series) => (
+                        <button
+                            key={
+                                series.value
+                            }
+                            type="button"
+                            className={
+                                activeSeries ===
+                                    series.value
+                                    ? "series-tab series-tab--active"
+                                    : "series-tab"
+                            }
+                            onClick={() =>
+                                changeSeries(
+                                    series.value
+                                )
+                            }
+                            aria-pressed={
+                                activeSeries ===
+                                series.value
+                            }
+                        >
+                            {series.label}
+                        </button>
+                    )
+                )}
             </nav>
+
+            <section className="favorite-drivers">
+                <div className="favorite-drivers__heading">
+                    <div>
+                        <p className="home-card__eyebrow">
+                            Your favorites
+                        </p>
+
+                        <h2>
+                            Favorite Drivers
+                        </h2>
+                    </div>
+
+                    <span>
+                        {
+                            favoriteDrivers.length
+                        }{" "}
+                        / 3 selected
+                    </span>
+                </div>
+
+                {favoriteDrivers.length >
+                    0 ? (
+                    <div className="favorite-drivers__list">
+                        {favoriteDrivers.map(
+                            (driver) => (
+                                <button
+                                    key={
+                                        driver
+                                    }
+                                    type="button"
+                                    onClick={() =>
+                                        toggleFavorite(
+                                            driver
+                                        )
+                                    }
+                                    aria-label={`Remove ${driver} from favorites`}
+                                >
+                                    <span
+                                        aria-hidden="true"
+                                    >
+                                        ★
+                                    </span>
+
+                                    {driver}
+
+                                    <span
+                                        aria-hidden="true"
+                                    >
+                                        ×
+                                    </span>
+                                </button>
+                            )
+                        )}
+                    </div>
+                ) : (
+                    <p className="favorite-drivers__empty">
+                        Select the star on up
+                        to three driver cards
+                        to keep them at the
+                        top.
+                    </p>
+                )}
+
+                {favoriteMessage && (
+                    <p
+                        className="favorite-drivers__message"
+                        role="alert"
+                    >
+                        {favoriteMessage}
+                    </p>
+                )}
+            </section>
 
             <section className="spotters-controls">
                 <label className="spotters-search">
@@ -159,9 +403,12 @@ function SpottersGuidePage() {
                     <input
                         type="search"
                         value={searchTerm}
-                        onChange={(event) =>
+                        onChange={(
+                            event
+                        ) =>
                             setSearchTerm(
-                                event.target.value
+                                event.target
+                                    .value
                             )
                         }
                         placeholder="Search driver, number, team, or sponsor"
@@ -169,23 +416,38 @@ function SpottersGuidePage() {
                 </label>
 
                 <label className="spotters-filter">
-                    <span>Manufacturer</span>
+                    <span>
+                        Manufacturer
+                    </span>
 
                     <select
-                        value={manufacturerFilter}
-                        onChange={(event) =>
+                        value={
+                            manufacturerFilter
+                        }
+                        onChange={(
+                            event
+                        ) =>
                             setManufacturerFilter(
-                                event.target.value
+                                event.target
+                                    .value
                             )
                         }
                     >
                         {manufacturers.map(
-                            (manufacturer) => (
+                            (
+                                manufacturer
+                            ) => (
                                 <option
-                                    key={manufacturer}
-                                    value={manufacturer}
+                                    key={
+                                        manufacturer
+                                    }
+                                    value={
+                                        manufacturer
+                                    }
                                 >
-                                    {manufacturer}
+                                    {
+                                        manufacturer
+                                    }
                                 </option>
                             )
                         )}
@@ -196,18 +458,15 @@ function SpottersGuidePage() {
             <div className="spotters-results-header">
                 <div>
                     <h2>
-                        {
-                            SERIES_OPTIONS.find(
-                                (series) =>
-                                    series.value ===
-                                    activeSeries
-                            )?.label
-                        }
+                        {activeSeriesLabel}
                     </h2>
 
                     <p>
-                        {filteredEntries.length}{" "}
-                        {filteredEntries.length === 1
+                        {
+                            filteredEntries.length
+                        }{" "}
+                        {filteredEntries.length ===
+                            1
                             ? "car"
                             : "cars"}
                     </p>
@@ -216,83 +475,124 @@ function SpottersGuidePage() {
 
             {filteredEntries.length > 0 ? (
                 <section className="spotters-grid">
-                    {filteredEntries.map((entry) => (
-                        <article
-                            key={`${activeSeries}-${entry.number}-${entry.driver}`}
-                            className="spotter-card"
-                        >
-                            <div className="spotter-card__image-wrapper">
-                                {entry.image ? (
-                                    <img
-                                        src={entry.image}
-                                        alt={`Number ${entry.number} ${entry.driver} ${entry.paintScheme} car`}
-                                        className="spotter-card__image"
-                                        loading="lazy"
-                                    />
-                                ) : (
-                                    <div className="spotter-card__image-placeholder">
-                                        <span>🏎️</span>
-                                        <p>
-                                            Image not
-                                            available
-                                        </p>
-                                    </div>
-                                )}
+                    {filteredEntries.map(
+                        (entry) => {
+                            const isFavorite =
+                                favoriteDrivers.includes(
+                                    entry.driver
+                                );
 
-                                <span className="spotter-card__number">
-                                    {entry.number}
-                                </span>
-                            </div>
+                            return (
+                                <article
+                                    key={`${activeSeries}-${entry.number}-${entry.driver}`}
+                                    className={
+                                        isFavorite
+                                            ? "spotter-card spotter-card--favorite"
+                                            : "spotter-card"
+                                    }
+                                >
+                                    <div className="spotter-card__image-wrapper">
+                                        {entry.image ? (
+                                            <img
+                                                src={entry.image}
+                                                alt={`Number ${entry.number} ${entry.driver} ${entry.paintScheme} car`}
+                                                className="spotter-card__image"
+                                                loading="lazy"
+                                            />
+                                        ) : (
+                                            <div className="spotter-card__image-placeholder">
+                                                <span aria-hidden="true">🏎️</span>
+                                                <p>Image not available</p>
+                                            </div>
+                                        )}
 
-                            <div className="spotter-card__content">
-                                <div className="spotter-card__heading">
-                                    <div>
-                                        <p className="spotter-card__manufacturer">
-                                            {
-                                                entry.manufacturer
+                                        <span className="spotter-card__number">
+                                            {entry.number}
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            className={
+                                                isFavorite
+                                                    ? "spotter-card__favorite spotter-card__favorite--active"
+                                                    : "spotter-card__favorite"
                                             }
-                                        </p>
-
-                                        <h3>
-                                            {entry.driver}
-                                        </h3>
+                                            onClick={() => toggleFavorite(entry.driver)}
+                                            aria-label={
+                                                isFavorite
+                                                    ? `Remove ${entry.driver} from favorites`
+                                                    : `Add ${entry.driver} to favorites`
+                                            }
+                                            aria-pressed={isFavorite}
+                                        >
+                                            {isFavorite ? "★" : "☆"}
+                                        </button>
                                     </div>
 
-                                    <span className="spotter-card__small-number">
-                                        #{entry.number}
-                                    </span>
-                                </div>
+                                    <div className="spotter-card__content">
+                                        <div className="spotter-card__heading">
+                                            <div>
+                                                <p className="spotter-card__manufacturer">
+                                                    {
+                                                        entry.manufacturer
+                                                    }
+                                                </p>
 
-                                <dl className="spotter-card__details">
-                                    <div>
-                                        <dt>
-                                            Paint scheme
-                                        </dt>
-                                        <dd>
-                                            {entry.paintScheme ||
-                                                "Not listed"}
-                                        </dd>
-                                    </div>
+                                                <h3>
+                                                    {
+                                                        entry.driver
+                                                    }
+                                                </h3>
+                                            </div>
 
-                                    <div>
-                                        <dt>Team</dt>
-                                        <dd>
-                                            {entry.team ||
-                                                "Not listed"}
-                                        </dd>
+                                            <span className="spotter-card__small-number">
+                                                #
+                                                {
+                                                    entry.number
+                                                }
+                                            </span>
+                                        </div>
+
+                                        <dl className="spotter-card__details">
+                                            <div>
+                                                <dt>
+                                                    Paint
+                                                    scheme
+                                                </dt>
+
+                                                <dd>
+                                                    {entry.paintScheme ||
+                                                        "Not listed"}
+                                                </dd>
+                                            </div>
+
+                                            <div>
+                                                <dt>
+                                                    Team
+                                                </dt>
+
+                                                <dd>
+                                                    {entry.team ||
+                                                        "Not listed"}
+                                                </dd>
+                                            </div>
+                                        </dl>
                                     </div>
-                                </dl>
-                            </div>
-                        </article>
-                    ))}
+                                </article>
+                            );
+                        }
+                    )}
                 </section>
             ) : (
                 <section className="empty-state">
-                    <h2>No cars found</h2>
+                    <h2>
+                        No cars found
+                    </h2>
 
                     <p>
-                        Try changing the series,
-                        manufacturer, or search term.
+                        Try changing the
+                        series, manufacturer,
+                        or search term.
                     </p>
                 </section>
             )}
