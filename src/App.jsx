@@ -7,8 +7,19 @@ import {
 } from "./utils/eventUtils";
 import "./App.css";
 
+const FILTERS = [
+  "All",
+  "Selected",
+  "Required",
+  "Race",
+  "Q&A",
+  "Entertainment",
+  "General",
+];
+
 function App() {
   const [events, setEvents] = useState(initialEvents);
+  const [activeFilter, setActiveFilter] = useState("All");
   const [conflictMessage, setConflictMessage] = useState("");
 
   function toggleEvent(eventId) {
@@ -18,7 +29,6 @@ function App() {
       return;
     }
 
-    // Selected optional events can always be removed.
     if (eventToToggle.selected) {
       setEvents((currentEvents) =>
         currentEvents.map((event) =>
@@ -38,12 +48,10 @@ function App() {
     const conflicts = findEventConflicts(eventToToggle, events);
 
     if (conflicts.length > 0) {
-      const conflictNames = conflicts
-        .map((conflict) => conflict.title)
-        .join(", ");
-
       setConflictMessage(
-        `"${eventToToggle.title}" overlaps with ${conflictNames}.`,
+        `"${eventToToggle.title}" overlaps with ${conflicts
+          .map((conflict) => conflict.title)
+          .join(", ")}.`,
       );
 
       return;
@@ -63,7 +71,26 @@ function App() {
     setConflictMessage("");
   }
 
-  const groupedEvents = groupEventsByDay(events);
+  function filterEvents() {
+    switch (activeFilter) {
+      case "Selected":
+        return events.filter((event) => event.selected);
+
+      case "Required":
+        return events.filter((event) => event.required);
+
+      case "All":
+        return events;
+
+      default:
+        return events.filter(
+          (event) => event.category === activeFilter,
+        );
+    }
+  }
+
+  const filteredEvents = filterEvents();
+  const groupedEvents = groupEventsByDay(filteredEvents);
 
   return (
     <main className="app">
@@ -85,6 +112,54 @@ function App() {
         </div>
       </header>
 
+      <section className="schedule-summary">
+        <div>
+          <span className="schedule-summary__number">
+            {events.filter((event) => event.selected).length}
+          </span>
+          <span className="schedule-summary__label">
+            Scheduled
+          </span>
+        </div>
+
+        <div>
+          <span className="schedule-summary__number">
+            {events.filter((event) => event.required).length}
+          </span>
+          <span className="schedule-summary__label">
+            Required
+          </span>
+        </div>
+
+        <div>
+          <span className="schedule-summary__number">
+            {events.filter(
+              (event) => !event.required && !event.selected,
+            ).length}
+          </span>
+          <span className="schedule-summary__label">
+            Optional
+          </span>
+        </div>
+      </section>
+
+      <nav className="filter-bar" aria-label="Schedule filters">
+        {FILTERS.map((filter) => (
+          <button
+            key={filter}
+            type="button"
+            className={
+              activeFilter === filter
+                ? "filter-button filter-button--active"
+                : "filter-button"
+            }
+            onClick={() => setActiveFilter(filter)}
+          >
+            {filter}
+          </button>
+        ))}
+      </nav>
+
       {conflictMessage && (
         <div className="conflict-alert" role="alert">
           <div>
@@ -102,17 +177,28 @@ function App() {
         </div>
       )}
 
-      <div className="schedule">
-        {Object.entries(groupedEvents).map(([day, dayEvents]) => (
-          <DaySchedule
-            key={day}
-            day={day}
-            events={dayEvents}
-            allEvents={events}
-            onToggleEvent={toggleEvent}
-          />
-        ))}
-      </div>
+      {Object.keys(groupedEvents).length > 0 ? (
+        <div className="schedule">
+          {Object.entries(groupedEvents).map(
+            ([day, dayEvents]) => (
+              <DaySchedule
+                key={day}
+                day={day}
+                events={dayEvents}
+                allEvents={events}
+                onToggleEvent={toggleEvent}
+              />
+            ),
+          )}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <h2>No events found</h2>
+          <p>
+            There are no events matching the selected filter.
+          </p>
+        </div>
+      )}
     </main>
   );
 }

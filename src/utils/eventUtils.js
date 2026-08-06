@@ -117,7 +117,12 @@ export function doEventsOverlap(firstEvent, secondEvent) {
     return false;
   }
 
-  // Milestones without an end time do not block the schedule.
+  // Flexible events may overlap other scheduled events.
+  if (firstEvent.allowsOverlap || secondEvent.allowsOverlap) {
+    return false;
+  }
+
+  // Events without end times are informational milestones.
   if (!firstEvent.end || !secondEvent.end) {
     return false;
   }
