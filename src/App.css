@@ -1956,3 +1956,250 @@ select {
 .notes-card__cancel-button:hover:not(:disabled) {
   background: #f3f4f6;
 }
+
+.install-page {
+  display: grid;
+  gap: 24px;
+}
+
+.install-hero-card,
+.install-benefits,
+.install-card,
+.install-help,
+.install-complete-card {
+  background: white;
+  border: 1px solid #dedede;
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgb(0 0 0 / 6%);
+}
+
+.install-hero-card {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+  padding: 30px;
+}
+
+.install-hero-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  color: white;
+  background: #151515;
+  border-radius: 25px;
+  font-size: 4rem;
+  box-shadow: 0 16px 30px rgb(0 0 0 / 18%);
+}
+
+.install-hero-card__content h2 {
+  margin: 0 0 10px;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.install-hero-card__content > p:last-of-type {
+  max-width: 650px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.install-primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 13px 18px;
+  color: white;
+  background: #202124;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.install-primary-button:hover {
+  background: #3b3b3b;
+}
+
+.install-status-message {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  color: #1e40af;
+  background: #dbeafe;
+  border-radius: 9px;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.install-benefits {
+  padding: 28px;
+}
+
+.install-benefits__heading h2 {
+  margin: 0 0 20px;
+}
+
+.install-benefits__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.install-benefits__grid article {
+  padding: 18px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 13px;
+}
+
+.install-benefits__grid article > span {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+}
+
+.install-benefits__grid h3 {
+  margin: 0 0 7px;
+}
+
+.install-benefits__grid p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.install-card {
+  padding: 28px;
+}
+
+.install-card--recommended {
+  border-color: #9ca3af;
+}
+
+.install-card__heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.install-card__heading > span {
+  font-size: 2.4rem;
+}
+
+.install-card__heading h2 {
+  margin: 0;
+}
+
+.install-steps {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.install-steps li {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 13px;
+  padding: 15px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.install-steps li > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: white;
+  background: #202124;
+  border-radius: 50%;
+  font-weight: 850;
+}
+
+.install-steps strong {
+  display: block;
+  margin-top: 3px;
+}
+
+.install-steps p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.install-direct-option p {
+  color: #6b7280;
+}
+
+.install-help {
+  padding: 24px 28px;
+}
+
+.install-help h2 {
+  margin: 0 0 8px;
+}
+
+.install-help p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.install-complete-card {
+  padding: 48px 28px;
+  text-align: center;
+}
+
+.install-complete-card__icon {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 5rem;
+}
+
+.install-complete-card h2 {
+  margin: 0 0 10px;
+}
+
+.install-complete-card p {
+  max-width: 600px;
+  margin: 0 auto;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .install-hero-card {
+    grid-template-columns: 1fr;
+  }
+
+  .install-hero-card__icon {
+    width: 88px;
+    height: 88px;
+    font-size: 3rem;
+  }
+
+  .install-benefits__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .install-hero-card,
+  .install-benefits,
+  .install-card,
+  .install-help {
+    padding: 21px;
+  }
+
+  .install-primary-button {
+    width: 100%;
+  }
+}

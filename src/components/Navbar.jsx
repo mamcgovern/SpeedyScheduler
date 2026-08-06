@@ -201,6 +201,22 @@ function Navbar() {
                                     </small>
                                 </span>
                             </NavLink>
+
+                            <NavLink
+                                to="/install"
+                                className="navbar__dropdown-link"
+                                onClick={closeMenu}
+                            >
+                                <span>📲</span>
+
+                                <span>
+                                    <strong>Install App</strong>
+
+                                    <small>
+                                        Add Speedy Scheduler to your home screen
+                                    </small>
+                                </span>
+                            </NavLink>
                         </nav>
                     )}
                 </div>

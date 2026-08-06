@@ -21,6 +21,7 @@ import EventsPage from "./pages/EventsPage";
 import SpottersGuidePage from "./pages/SpottersGuidePage";
 import SignInPage from "./pages/SignInPage";
 import WeekendNotesPage from "./pages/WeekendNotesPage";
+import InstallPage from "./pages/InstallPage";
 
 import {
   saveChecklist,
@@ -485,6 +486,11 @@ function App() {
                 onUpdateChecklist={updateChecklist}
               />
             }
+          />
+          
+          <Route
+            path="/install"
+            element={<InstallPage />}
           />
         </Routes>
       </main>
