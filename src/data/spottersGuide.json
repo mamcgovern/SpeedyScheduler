@@ -295,7 +295,7 @@
             "number": "0",
             "paintScheme": "Knight Fire",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "SS GreenLight Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NOAPS_24Iowa_0-922x400.jpg"
         },
         {
@@ -303,7 +303,7 @@
             "number": "00",
             "paintScheme": "Road Ranger",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Haas Factory Team",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_00-922x400.jpg"
         },
         {
@@ -311,7 +311,7 @@
             "number": "1",
             "paintScheme": "Bass Pro Shops",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "JR Motorsports",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_1-922x400.jpg"
         },
         {
@@ -319,15 +319,15 @@
             "number": "2",
             "paintScheme": "Whelen",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Richard Childress Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_2-922x400.jpg"
         },
         {
-            "driver": "",
+            "driver": "Josh Bilicki",
             "number": "07",
             "paintScheme": "Sukup",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "SS GreenLight Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NOAPS_24Iowa_07-922x400.jpg"
         },
         {
@@ -335,7 +335,7 @@
             "number": "7",
             "paintScheme": "Precision Build/Brandt",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "JR Motorsports",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_7-922x400.jpg"
         },
         {
@@ -343,7 +343,7 @@
             "number": "8",
             "paintScheme": "Pilot",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "JR Motorsports",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_8-922x400.jpg"
         },
         {
@@ -351,15 +351,23 @@
             "number": "9",
             "paintScheme": "Registix",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "JR Motorsports",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_9-922x400.jpg"
+        },
+        {
+            "driver": "Corey Day",
+            "number": "17",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "Hendrick Motorsports",
+            "image": ""
         },
         {
             "driver": "William Sawalich",
             "number": "18",
             "paintScheme": "Soundgear",
             "manufacturer": "Toyota",
-            "team": "",
+            "team": "Joe Gibbs Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_18-922x400.jpg"
         },
         {
@@ -367,7 +375,7 @@
             "number": "19",
             "paintScheme": "YoungLife",
             "manufacturer": "Toyota",
-            "team": "",
+            "team": "Joe Gibbs Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_19-922x400.jpg"
         },
         {
@@ -375,7 +383,7 @@
             "number": "20",
             "paintScheme": "Menards/Master Gardens",
             "manufacturer": "Toyota",
-            "team": "",
+            "team": "Joe Gibbs Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_20-922x400.jpg"
         },
         {
@@ -383,7 +391,7 @@
             "number": "21",
             "paintScheme": "Bennett Transportation",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Richard Childress Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_21-922x400.jpg"
         },
         {
@@ -391,7 +399,7 @@
             "number": "24",
             "paintScheme": "DEX/Sharp",
             "manufacturer": "Toyota",
-            "team": "",
+            "team": "Sam Hunt Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_24-922x400.jpg"
         },
         {
@@ -399,7 +407,7 @@
             "number": "26",
             "paintScheme": "Thompson Pipe Group",
             "manufacturer": "Toyota",
-            "team": "",
+            "team": "Sam Hunt Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_26-922x400.jpg"
         },
         {
@@ -407,15 +415,23 @@
             "number": "27",
             "paintScheme": "Celsius Live Fit",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Jordan Anderson Racing Bommarito Autosport",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_27-922x400.jpg"
+        },
+        {
+            "driver": "Kyle Sieg",
+            "number": "28",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "RSS Racing",
+            "image": ""
         },
         {
             "driver": "Blaine Perkins",
             "number": "31",
             "paintScheme": "The Gentleman Theif",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Jordan Anderson Racing Bommarito Autosport",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_31-922x400.jpg"
         },
         {
@@ -423,39 +439,111 @@
             "number": "32",
             "paintScheme": "DWC Distributor Wire & Cable",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Jordan Anderson Racing Bommarito Autosport",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_32-922x400.jpg"
         },
         {
-            "driver": "Sam Meyer",
+            "driver": "Ryan Sieg",
+            "number": "39",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "RSS Racing",
+            "image": ""
+        },
+        {
+            "driver": "Sam Mayer",
             "number": "41",
             "paintScheme": "Starkey",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Haas Factory Team",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_41-922x400.jpg"
+        },
+        {
+            "driver": "Nathan Byrd",
+            "number": "42",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "Young's Motorsports",
+            "image": ""
+        },
+        {
+            "driver": "Brennan Poole",
+            "number": "44",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "Alpha Prime Racing",
+            "image": ""
+        },
+        {
+            "driver": "Lavar Scott",
+            "number": "45",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "Alpha Prime Racing",
+            "image": ""
+        },
+        {
+            "driver": "Carson Ware",
+            "number": "47",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "Mike Harmon Racing",
+            "image": ""
+        },
+        {
+            "driver": "Patrick Staropoli",
+            "number": "48",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "Big Machine Racing",
+            "image": ""
         },
         {
             "driver": "Jeremy Clements",
             "number": "51",
             "paintScheme": "Premiere Recycling",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Jeremy Clements Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_51-922x400.jpg"
+        },
+        {
+            "driver": "Tyler Tomassi",
+            "number": "53",
+            "paintScheme": "",
+            "manufacturer": "Toyota",
+            "team": "Joey Gase Motorsports",
+            "image": ""
         },
         {
             "driver": "Taylor Gray",
             "number": "54",
             "paintScheme": "Operation 300",
             "manufacturer": "Toyota",
-            "team": "",
+            "team": "Joe Gibbs Racing",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_54-922x400.jpg"
+        },
+        {
+            "driver": "Joey Gase",
+            "number": "55",
+            "paintScheme": "",
+            "manufacturer": "Ford",
+            "team": "Joey Gase Motorsports",
+            "image": ""
+        },
+        {
+            "driver": "Nicholas Sanchez",
+            "number": "87",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "Peterson Racing Group",
+            "image": ""
         },
         {
             "driver": "Rajah Caruth",
             "number": "88",
             "paintScheme": "HendrickCars.com",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "JR Motorsports",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_88-922x400.jpg"
         },
         {
@@ -463,15 +551,23 @@
             "number": "91",
             "paintScheme": "Crankshaft Supply Inc.",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "DGM Racing X JIM",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_91-922x400.jpg"
+        },
+        {
+            "driver": "Mason Maggio",
+            "number": "92",
+            "paintScheme": "",
+            "manufacturer": "Chevrolet",
+            "team": "DGM Racing X JIM",
+            "image": ""
         },
         {
             "driver": "Anthony Alfredo",
             "number": "96",
             "paintScheme": "Alter Trading",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Viking Motorsports",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_96-922x400.jpg"
         },
         {
@@ -479,7 +575,7 @@
             "number": "99",
             "paintScheme": "FunkAway",
             "manufacturer": "Chevrolet",
-            "team": "",
+            "team": "Viking Motorsports",
             "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NOAPS_24Iowa_99-922x400.jpg"
         }
     ]
