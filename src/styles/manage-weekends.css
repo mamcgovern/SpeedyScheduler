@@ -1,101 +1,76 @@
 .manage-weekends-page {
   display: grid;
+  gap: 28px;
+}
+
+.manage-weekends-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 24px;
 }
 
-.manage-weekends-grid {
-  display: grid;
-  grid-template-columns:
-    minmax(0, 1fr)
-    minmax(320px, 0.8fr);
-  gap: 22px;
+.manage-weekends-heading > div {
+  min-width: 0;
 }
 
-.weekends-list-card,
-.weekend-form-card {
+.manage-weekends-heading__button {
+  flex-shrink: 0;
+}
+
+.weekend-form-card,
+.weekends-list-section {
   padding: 26px;
   background: white;
-  border: 1px solid
-    var(--color-border);
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  box-shadow:
-    var(--shadow-card);
+  box-shadow: var(--shadow-card);
 }
 
-.weekends-list-card > h2,
-.weekend-form-card h2 {
-  margin-top: 0;
+.weekend-form-card {
+  width: min(100%, 760px);
+  margin: 0 auto;
 }
 
-.weekends-list {
-  display: grid;
-  gap: 12px;
-}
-
-.weekend-list-item {
+.weekend-form-card__heading,
+.weekends-list-section__heading {
   display: flex;
   align-items: flex-start;
-  justify-content:
-    space-between;
+  justify-content: space-between;
   gap: 18px;
-  padding: 17px;
-  background: #f9fafb;
-  border: 1px solid
-    #e5e7eb;
-  border-radius: 12px;
+  margin-bottom: 22px;
 }
 
-.weekend-list-item--active {
-  background: #f0fdf4;
-  border-color: #86efac;
+.weekend-form-card__heading h2,
+.weekends-list-section__heading h2 {
+  margin: 0;
 }
 
-.weekend-list-item h3 {
-  margin: 0 0 6px;
-}
-
-.weekend-list-item p {
-  margin: 4px 0 0;
-  color: #6b7280;
-}
-
-.weekend-list-item__actions {
+.weekend-form-card__close {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 7px;
-}
-
-.weekend-list-item__actions button,
-.weekend-form-card__heading button {
-  padding: 8px 11px;
-  color: #202124;
-  background: white;
-  border: 1px solid
-    #d1d5db;
-  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: #4b5563;
+  background: #f3f4f6;
+  border: 0;
+  border-radius: 50%;
   cursor: pointer;
-  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
-.weekend-list-item__actions
-  .danger-button {
-  color: #991b1b;
-  background: #fef2f2;
-  border-color: #fecaca;
-}
-
-.weekend-form-card__heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content:
-    space-between;
-  gap: 16px;
+.weekend-form-card__close:hover {
+  color: #111827;
+  background: #e5e7eb;
 }
 
 .weekend-form {
   display: grid;
-  gap: 15px;
+  gap: 16px;
 }
 
 .weekend-form label {
@@ -112,8 +87,7 @@
   padding: 11px 13px;
   color: #202124;
   background: white;
-  border: 1px solid
-    #d1d5db;
+  border: 1px solid #d1d5db;
   border-radius: 10px;
   outline: none;
 }
@@ -132,19 +106,53 @@
   gap: 12px;
 }
 
-.primary-button {
-  padding: 12px 16px;
-  color: white;
-  background: #202124;
-  border: 0;
+.weekend-form__help {
+  margin: -3px 0 0;
+  color: #6b7280;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.weekend-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.primary-button,
+.secondary-button {
+  padding: 11px 16px;
   border-radius: 10px;
   cursor: pointer;
   font-weight: 750;
 }
 
-.primary-button:disabled {
+.primary-button {
+  color: white;
+  background: #202124;
+  border: 1px solid #202124;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #3b3b3b;
+}
+
+.secondary-button {
+  color: #4b5563;
+  background: white;
+  border: 1px solid #d1d5db;
+}
+
+.secondary-button:hover:not(:disabled) {
+  color: #202124;
+  background: #f3f4f6;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled {
+  cursor: not-allowed;
   opacity: 0.65;
-  cursor: wait;
 }
 
 .form-error {
@@ -152,26 +160,208 @@
   padding: 10px 12px;
   color: #991b1b;
   background: #fef2f2;
+  border: 1px solid #fecaca;
   border-radius: 9px;
 }
 
-@media (max-width: 850px) {
-  .manage-weekends-grid {
-    grid-template-columns: 1fr;
-  }
+.weekends-list-section__heading {
+  align-items: end;
 }
 
-@media (max-width: 560px) {
-  .weekend-list-item {
+.weekends-list-section__heading > span {
+  color: #6b7280;
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.weekends-card-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(290px, 1fr)
+    );
+  gap: 16px;
+}
+
+.weekend-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+}
+
+.weekend-card--active {
+  background: #f0fdf4;
+  border-color: #86efac;
+  box-shadow:
+    0 0 0 2px
+    rgb(134 239 172 / 20%);
+}
+
+.weekend-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 14px 17px;
+  color: white;
+  background: #202124;
+}
+
+.weekend-card--active
+  .weekend-card__top {
+  background: #166534;
+}
+
+.weekend-card__icon {
+  font-size: 1.8rem;
+}
+
+.weekend-card__active-label {
+  padding: 5px 9px;
+  color: #14532d;
+  background: #dcfce7;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.weekend-card__content {
+  flex: 1;
+  padding: 20px;
+}
+
+.weekend-card h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.25;
+}
+
+.weekend-card__subtitle {
+  margin: 7px 0 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.weekend-card__details {
+  display: grid;
+  gap: 13px;
+  margin: 20px 0 0;
+}
+
+.weekend-card__details div {
+  display: grid;
+  gap: 3px;
+}
+
+.weekend-card__details dt {
+  color: #6b7280;
+  font-size: 0.69rem;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.weekend-card__details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.weekend-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 14px 17px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+}
+
+.weekend-card__actions button {
+  padding: 8px 11px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.weekend-card__open-button {
+  color: white;
+  background: #202124;
+  border: 1px solid #202124;
+}
+
+.weekend-card__open-button:hover {
+  background: #3b3b3b;
+}
+
+.weekend-card__edit-button {
+  color: #202124;
+  background: white;
+  border: 1px solid #d1d5db;
+}
+
+.weekend-card__edit-button:hover {
+  background: #f3f4f6;
+}
+
+.weekend-card__delete-button {
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.weekend-card__delete-button:hover {
+  background: #fee2e2;
+}
+
+.weekends-list-section
+  .empty-state
+  .primary-button {
+  margin-top: 18px;
+}
+
+@media (max-width: 700px) {
+  .manage-weekends-heading {
     flex-direction: column;
   }
 
-  .weekend-list-item__actions {
-    justify-content:
-      flex-start;
+  .manage-weekends-heading__button {
+    width: 100%;
+  }
+
+  .weekend-form-card,
+  .weekends-list-section {
+    padding: 20px;
   }
 
   .weekend-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .weekends-list-section__heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 420px) {
+  .weekend-form__actions {
+    flex-direction: column;
+  }
+
+  .weekend-form__actions button {
+    width: 100%;
+  }
+
+  .weekend-card__actions {
+    display: grid;
     grid-template-columns: 1fr;
   }
 }

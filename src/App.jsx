@@ -517,10 +517,14 @@ function App() {
             path="/events"
             element={
               <AllEventsPage
-                weekend={
-                  activeWeekend
-                }
+                weekend={activeWeekend}
                 events={events}
+                onUpdateWeekend={(updates) =>
+                  updateWeekend(
+                    activeWeekend.id,
+                    updates,
+                  )
+                }
               />
             }
           />

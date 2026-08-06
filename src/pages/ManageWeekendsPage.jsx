@@ -9,6 +9,10 @@ import {
   updateWeekend,
 } from "../services/weekends";
 
+import {
+  formatWeekendDateRange,
+} from "../utils/eventUtils";
+
 const EMPTY_FORM = {
   title: "",
   subtitle: "",
@@ -25,25 +29,19 @@ function ManageWeekendsPage({
   activeWeekendId,
   onSelectWeekend,
 }) {
-  const [
-    mode,
-    setMode,
-  ] = useState("create");
+  const [formMode, setFormMode] =
+    useState("closed");
 
   const [
     editingWeekendId,
     setEditingWeekendId,
   ] = useState(null);
 
-  const [
-    form,
-    setForm,
-  ] = useState(EMPTY_FORM);
+  const [form, setForm] =
+    useState(EMPTY_FORM);
 
-  const [
-    saving,
-    setSaving,
-  ] = useState(false);
+  const [saving, setSaving] =
+    useState(false);
 
   const [
     errorMessage,
@@ -52,20 +50,19 @@ function ManageWeekendsPage({
 
   useEffect(() => {
     if (
-      mode !== "edit" ||
+      formMode !== "edit" ||
       !editingWeekendId
     ) {
       return;
     }
 
-    const weekend =
-      weekends.find(
-        (item) =>
-          item.id ===
-          editingWeekendId,
-      );
+    const weekend = weekends.find(
+      (item) =>
+        item.id === editingWeekendId,
+    );
 
     if (!weekend) {
+      closeForm();
       return;
     }
 
@@ -83,12 +80,10 @@ function ManageWeekendsPage({
         weekend.endDate ?? "",
 
       locationName:
-        weekend.locationName ??
-        "",
+        weekend.locationName ?? "",
 
       locationAddress:
-        weekend.locationAddress ??
-        "",
+        weekend.locationAddress ?? "",
 
       latitude:
         weekend.latitude ?? "",
@@ -97,64 +92,134 @@ function ManageWeekendsPage({
         weekend.longitude ?? "",
     });
   }, [
-    mode,
+    formMode,
     editingWeekendId,
     weekends,
   ]);
 
-  function updateField(
-    event,
-  ) {
+  function updateField(event) {
     const {
       name,
       value,
     } = event.target;
 
     setForm(
-      (current) => ({
-        ...current,
+      (currentForm) => ({
+        ...currentForm,
         [name]: value,
       }),
     );
   }
 
-  function resetForm() {
-    setMode("create");
-    setEditingWeekendId(
-      null,
-    );
-
-    setForm(
-      EMPTY_FORM,
-    );
-
+  function openCreateForm() {
+    setFormMode("create");
+    setEditingWeekendId(null);
+    setForm(EMPTY_FORM);
     setErrorMessage("");
   }
 
-  function editWeekend(
-    weekend,
-  ) {
-    setMode("edit");
-
+  function openEditForm(weekend) {
+    setFormMode("edit");
     setEditingWeekendId(
       weekend.id,
     );
 
+    setForm({
+      title:
+        weekend.title ?? "",
+
+      subtitle:
+        weekend.subtitle ?? "",
+
+      startDate:
+        weekend.startDate ?? "",
+
+      endDate:
+        weekend.endDate ?? "",
+
+      locationName:
+        weekend.locationName ?? "",
+
+      locationAddress:
+        weekend.locationAddress ?? "",
+
+      latitude:
+        weekend.latitude ?? "",
+
+      longitude:
+        weekend.longitude ?? "",
+    });
+
+    setErrorMessage("");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
+  function closeForm() {
+    setFormMode("closed");
+    setEditingWeekendId(null);
+    setForm(EMPTY_FORM);
     setErrorMessage("");
   }
 
-  async function handleSubmit(
-    event,
-  ) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
+    const title = form.title.trim();
+
     if (
-      !form.title.trim() ||
+      !title ||
       !form.startDate ||
       !form.endDate
     ) {
       setErrorMessage(
-        "Enter a title, start date, and end date.",
+        "Enter a weekend title, start date, and end date.",
+      );
+
+      return;
+    }
+
+    if (
+      form.endDate <
+      form.startDate
+    ) {
+      setErrorMessage(
+        "The end date cannot be before the start date.",
+      );
+
+      return;
+    }
+
+    const latitude =
+      form.latitude === ""
+        ? null
+        : Number(form.latitude);
+
+    const longitude =
+      form.longitude === ""
+        ? null
+        : Number(form.longitude);
+
+    if (
+      latitude !== null &&
+      !Number.isFinite(latitude)
+    ) {
+      setErrorMessage(
+        "Enter a valid latitude.",
+      );
+
+      return;
+    }
+
+    if (
+      longitude !== null &&
+      !Number.isFinite(longitude)
+    ) {
+      setErrorMessage(
+        "Enter a valid longitude.",
       );
 
       return;
@@ -164,8 +229,7 @@ function ManageWeekendsPage({
     setErrorMessage("");
 
     const weekendData = {
-      title:
-        form.title.trim(),
+      title,
 
       subtitle:
         form.subtitle.trim(),
@@ -182,24 +246,13 @@ function ManageWeekendsPage({
       locationAddress:
         form.locationAddress.trim(),
 
-      latitude:
-        form.latitude === ""
-          ? null
-          : Number(
-              form.latitude,
-            ),
-
-      longitude:
-        form.longitude === ""
-          ? null
-          : Number(
-              form.longitude,
-            ),
+      latitude,
+      longitude,
     };
 
     try {
       if (
-        mode === "edit" &&
+        formMode === "edit" &&
         editingWeekendId
       ) {
         await updateWeekend(
@@ -210,10 +263,13 @@ function ManageWeekendsPage({
         const newWeekendId =
           await createWeekend({
             ...weekendData,
+
             events: [],
-            selectedEventIds:
-              [],
+
+            selectedEventIds: [],
+
             notes: "",
+
             checklist: [],
           });
 
@@ -222,7 +278,7 @@ function ManageWeekendsPage({
         );
       }
 
-      resetForm();
+      closeForm();
     } catch (error) {
       console.error(
         "Could not save weekend:",
@@ -230,7 +286,7 @@ function ManageWeekendsPage({
       );
 
       setErrorMessage(
-        "The weekend could not be saved.",
+        "The weekend could not be saved. Please try again.",
       );
     } finally {
       setSaving(false);
@@ -240,9 +296,7 @@ function ManageWeekendsPage({
   async function handleDelete(
     weekend,
   ) {
-    if (
-      weekends.length <= 1
-    ) {
+    if (weekends.length <= 1) {
       window.alert(
         "You must keep at least one weekend.",
       );
@@ -252,7 +306,7 @@ function ManageWeekendsPage({
 
     const confirmed =
       window.confirm(
-        `Delete "${weekend.title}"? This cannot be undone.`,
+        `Delete "${weekend.title}"? Its events, schedule, notes, and checklist will also be deleted.`,
       );
 
     if (!confirmed) {
@@ -263,6 +317,13 @@ function ManageWeekendsPage({
       await deleteWeekend(
         weekend.id,
       );
+
+      if (
+        editingWeekendId ===
+        weekend.id
+      ) {
+        closeForm();
+      }
 
       if (
         weekend.id ===
@@ -288,155 +349,79 @@ function ManageWeekendsPage({
       );
 
       window.alert(
-        "The weekend could not be deleted.",
+        "The weekend could not be deleted. Please try again.",
       );
     }
   }
 
   return (
     <div className="manage-weekends-page">
-      <header className="page-heading">
-        <p className="page-heading__eyebrow">
-          Speedy Scheduler
-        </p>
+      <header className="page-heading manage-weekends-heading">
+        <div>
+          <p className="page-heading__eyebrow">
+            Speedy Scheduler
+          </p>
 
-        <h1>
-          Manage Weekends
-        </h1>
+          <h1>Manage Weekends</h1>
 
-        <p>
-          Create new weekends or
-          update the title, dates,
-          location, and weather
-          coordinates.
-        </p>
+          <p>
+            Create weekends and update their
+            title, dates, location, and weather
+            information.
+          </p>
+        </div>
+
+        {formMode === "closed" && (
+          <button
+            type="button"
+            className="primary-button manage-weekends-heading__button"
+            onClick={openCreateForm}
+          >
+            + New Weekend
+          </button>
+        )}
       </header>
 
-      <section className="manage-weekends-grid">
-        <article className="weekends-list-card">
-          <h2>
-            Saved Weekends
-          </h2>
-
-          <div className="weekends-list">
-            {weekends.map(
-              (weekend) => (
-                <article
-                  key={weekend.id}
-                  className={
-                    weekend.id ===
-                    activeWeekendId
-                      ? "weekend-list-item weekend-list-item--active"
-                      : "weekend-list-item"
-                  }
-                >
-                  <div>
-                    <h3>
-                      {
-                        weekend.title
-                      }
-                    </h3>
-
-                    <p>
-                      {
-                        weekend.startDate
-                      }{" "}
-                      to{" "}
-                      {
-                        weekend.endDate
-                      }
-                    </p>
-
-                    {weekend.locationName && (
-                      <p>
-                        📍{" "}
-                        {
-                          weekend.locationName
-                        }
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="weekend-list-item__actions">
-                    {weekend.id !==
-                      activeWeekendId && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onSelectWeekend(
-                            weekend.id,
-                          )
-                        }
-                      >
-                        Open
-                      </button>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        editWeekend(
-                          weekend,
-                        )
-                      }
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      type="button"
-                      className="danger-button"
-                      onClick={() =>
-                        handleDelete(
-                          weekend,
-                        )
-                      }
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </article>
-              ),
-            )}
-          </div>
-        </article>
-
-        <article className="weekend-form-card">
+      {formMode !== "closed" && (
+        <section className="weekend-form-card">
           <div className="weekend-form-card__heading">
-            <h2>
-              {mode === "edit"
-                ? "Edit Weekend"
-                : "Create Weekend"}
-            </h2>
+            <div>
+              <p className="page-heading__eyebrow">
+                {formMode === "edit"
+                  ? "Update weekend"
+                  : "Add weekend"}
+              </p>
 
-            {mode === "edit" && (
-              <button
-                type="button"
-                onClick={resetForm}
-              >
-                Cancel
-              </button>
-            )}
+              <h2>
+                {formMode === "edit"
+                  ? "Edit Weekend"
+                  : "Create New Weekend"}
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              className="weekend-form-card__close"
+              onClick={closeForm}
+              aria-label="Close weekend form"
+            >
+              ×
+            </button>
           </div>
 
           <form
             className="weekend-form"
-            onSubmit={
-              handleSubmit
-            }
+            onSubmit={handleSubmit}
           >
             <label>
               Weekend title
 
               <input
                 name="title"
-                value={
-                  form.title
-                }
-                onChange={
-                  updateField
-                }
+                value={form.title}
+                onChange={updateField}
                 placeholder="Family Reunion Weekend"
+                autoFocus
               />
             </label>
 
@@ -445,12 +430,8 @@ function ManageWeekendsPage({
 
               <input
                 name="subtitle"
-                value={
-                  form.subtitle
-                }
-                onChange={
-                  updateField
-                }
+                value={form.subtitle}
+                onChange={updateField}
                 placeholder="A weekend with the whole family"
               />
             </label>
@@ -477,8 +458,10 @@ function ManageWeekendsPage({
                 <input
                   type="date"
                   name="endDate"
-                  value={
-                    form.endDate
+                  value={form.endDate}
+                  min={
+                    form.startDate ||
+                    undefined
                   }
                   onChange={
                     updateField
@@ -495,9 +478,7 @@ function ManageWeekendsPage({
                 value={
                   form.locationName
                 }
-                onChange={
-                  updateField
-                }
+                onChange={updateField}
                 placeholder="Adventureland"
               />
             </label>
@@ -510,9 +491,7 @@ function ManageWeekendsPage({
                 value={
                   form.locationAddress
                 }
-                onChange={
-                  updateField
-                }
+                onChange={updateField}
                 placeholder="Altoona, Iowa"
               />
             </label>
@@ -524,14 +503,12 @@ function ManageWeekendsPage({
                 <input
                   type="number"
                   step="any"
+                  min="-90"
+                  max="90"
                   name="latitude"
-                  value={
-                    form.latitude
-                  }
-                  onChange={
-                    updateField
-                  }
-                  placeholder="41.65"
+                  value={form.latitude}
+                  onChange={updateField}
+                  placeholder="41.6544"
                 />
               </label>
 
@@ -541,37 +518,240 @@ function ManageWeekendsPage({
                 <input
                   type="number"
                   step="any"
+                  min="-180"
+                  max="180"
                   name="longitude"
-                  value={
-                    form.longitude
-                  }
-                  onChange={
-                    updateField
-                  }
-                  placeholder="-93.46"
+                  value={form.longitude}
+                  onChange={updateField}
+                  placeholder="-93.4959"
                 />
               </label>
             </div>
 
+            <p className="weekend-form__help">
+              Latitude and longitude are optional.
+              Add them to show weather for this
+              weekend on the home page.
+            </p>
+
             {errorMessage && (
-              <p className="form-error">
+              <p
+                className="form-error"
+                role="alert"
+              >
                 {errorMessage}
               </p>
             )}
 
-            <button
-              type="submit"
-              className="primary-button"
-              disabled={saving}
-            >
-              {saving
-                ? "Saving..."
-                : mode === "edit"
-                  ? "Save Changes"
-                  : "Create Weekend"}
-            </button>
+            <div className="weekend-form__actions">
+              <button
+                type="submit"
+                className="primary-button"
+                disabled={saving}
+              >
+                {saving
+                  ? "Saving..."
+                  : formMode ===
+                      "edit"
+                    ? "Save Changes"
+                    : "Create Weekend"}
+              </button>
+
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={closeForm}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+            </div>
           </form>
-        </article>
+        </section>
+      )}
+
+      <section className="weekends-list-section">
+        <div className="weekends-list-section__heading">
+          <div>
+            <p className="page-heading__eyebrow">
+              Saved plans
+            </p>
+
+            <h2>Your Weekends</h2>
+          </div>
+
+          <span>
+            {weekends.length}{" "}
+            {weekends.length === 1
+              ? "weekend"
+              : "weekends"}
+          </span>
+        </div>
+
+        {weekends.length > 0 ? (
+          <div className="weekends-card-grid">
+            {weekends.map(
+              (weekend) => {
+                const isActive =
+                  weekend.id ===
+                  activeWeekendId;
+
+                const eventCount =
+                  (
+                    weekend.events ??
+                    []
+                  ).length;
+
+                return (
+                  <article
+                    key={weekend.id}
+                    className={
+                      isActive
+                        ? "weekend-card weekend-card--active"
+                        : "weekend-card"
+                    }
+                  >
+                    <div className="weekend-card__top">
+                      <span
+                        className="weekend-card__icon"
+                        aria-hidden="true"
+                      >
+                        📅
+                      </span>
+
+                      {isActive && (
+                        <span className="weekend-card__active-label">
+                          Current Weekend
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="weekend-card__content">
+                      <h3>
+                        {weekend.title}
+                      </h3>
+
+                      {weekend.subtitle && (
+                        <p className="weekend-card__subtitle">
+                          {
+                            weekend.subtitle
+                          }
+                        </p>
+                      )}
+
+                      <dl className="weekend-card__details">
+                        <div>
+                          <dt>Dates</dt>
+
+                          <dd>
+                            {formatWeekendDateRange(
+                              weekend.startDate,
+                              weekend.endDate,
+                            )}
+                          </dd>
+                        </div>
+
+                        {(weekend.locationName ||
+                          weekend.locationAddress) && (
+                          <div>
+                            <dt>
+                              Location
+                            </dt>
+
+                            <dd>
+                              {[
+                                weekend.locationName,
+                                weekend.locationAddress,
+                              ]
+                                .filter(
+                                  Boolean,
+                                )
+                                .join(
+                                  " · ",
+                                )}
+                            </dd>
+                          </div>
+                        )}
+
+                        <div>
+                          <dt>
+                            Events
+                          </dt>
+
+                          <dd>
+                            {eventCount}{" "}
+                            {eventCount === 1
+                              ? "event"
+                              : "events"}
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div className="weekend-card__actions">
+                      {!isActive && (
+                        <button
+                          type="button"
+                          className="weekend-card__open-button"
+                          onClick={() =>
+                            onSelectWeekend(
+                              weekend.id,
+                            )
+                          }
+                        >
+                          Open Weekend
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        className="weekend-card__edit-button"
+                        onClick={() =>
+                          openEditForm(
+                            weekend,
+                          )
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        className="weekend-card__delete-button"
+                        onClick={() =>
+                          handleDelete(
+                            weekend,
+                          )
+                        }
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </article>
+                );
+              },
+            )}
+          </div>
+        ) : (
+          <section className="empty-state">
+            <h2>
+              No weekends yet
+            </h2>
+
+            <p>
+              Create your first weekend to
+              begin planning.
+            </p>
+
+            <button
+              type="button"
+              className="primary-button"
+              onClick={openCreateForm}
+            >
+              Create Weekend
+            </button>
+          </section>
+        )}
       </section>
     </div>
   );
