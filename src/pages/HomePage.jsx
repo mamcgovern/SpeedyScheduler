@@ -14,6 +14,8 @@ import {
 
 import raceLogo from "../assets/race-logo.png";
 
+import WeatherCard from "../components/WeatherCard";
+
 function HomePage({ events }) {
     const [currentTime, setCurrentTime] =
         useState(() => new Date());
@@ -220,6 +222,8 @@ function HomePage({ events }) {
                     </Link>
                 </article>
             </section>
+
+            <WeatherCard events={events} />
 
             <section className="quick-links-section">
                 <div className="quick-links-section__heading">
