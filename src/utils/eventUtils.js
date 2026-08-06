@@ -143,3 +143,44 @@ export function findEventConflicts(event, events) {
       doEventsOverlap(event, otherEvent),
   );
 }
+
+export function getNearestEventDay(events) {
+  const uniqueDays = [...new Set(events.map((event) => event.day))]
+    .sort((firstDay, secondDay) => {
+      return parseEventDate(firstDay) - parseEventDate(secondDay);
+    });
+
+  if (uniqueDays.length === 0) {
+    return null;
+  }
+
+  const today = new Date();
+
+  // Remove the current time so we compare calendar dates only.
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingDay = uniqueDays.find((day) => {
+    const eventDate = parseEventDate(day);
+    eventDate.setHours(0, 0, 0, 0);
+
+    return eventDate >= today;
+  });
+
+  // Use the nearest upcoming day. If all event days have passed,
+  // default to the final day.
+  return upcomingDay ?? uniqueDays[uniqueDays.length - 1];
+}
+
+export function formatDayTab(dateString) {
+  const date = parseEventDate(dateString);
+
+  if (!date || Number.isNaN(date.getTime())) {
+    return dateString;
+  }
+
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}

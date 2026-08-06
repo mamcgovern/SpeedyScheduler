@@ -539,3 +539,102 @@ select {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+
+.day-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 6px;
+  overflow-x: auto;
+  background: white;
+  border: 1px solid #dedede;
+  border-radius: 15px;
+}
+
+.day-tab {
+  flex: 1;
+  min-width: 130px;
+  padding: 13px 18px;
+  color: #4b5563;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.day-tab:hover {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.day-tab--active {
+  color: white;
+  background: #202124;
+}
+
+.day-tab--active:hover {
+  color: white;
+  background: #202124;
+}
+
+.day-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.day-navigation button {
+  padding: 11px 16px;
+  color: white;
+  background: #202124;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.day-navigation button:hover:not(:disabled) {
+  background: #3b3b3b;
+}
+
+.day-navigation button:disabled {
+  color: #9ca3af;
+  background: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.day-navigation span {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+@media (max-width: 700px) {
+  .day-tabs {
+    padding: 5px;
+  }
+
+  .day-tab {
+    flex: none;
+    min-width: 115px;
+    padding: 11px 14px;
+  }
+
+  .day-navigation {
+    flex-wrap: wrap;
+  }
+
+  .day-navigation button {
+    flex: 1;
+  }
+
+  .day-navigation span {
+    width: 100%;
+    order: -1;
+    text-align: center;
+  }
+}

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import initialEvents from "./data/events.json";
 import DaySchedule from "./components/DaySchedule";
 import {
   findEventConflicts,
-  groupEventsByDay,
+  formatDayTab,
+  getNearestEventDay,
+  parseEventDate,
 } from "./utils/eventUtils";
 import "./App.css";
 
@@ -22,8 +24,21 @@ function App() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [conflictMessage, setConflictMessage] = useState("");
 
+  const eventDays = useMemo(() => {
+    return [...new Set(events.map((event) => event.day))].sort(
+      (firstDay, secondDay) =>
+        parseEventDate(firstDay) - parseEventDate(secondDay),
+    );
+  }, [events]);
+
+  const [activeDay, setActiveDay] = useState(() =>
+    getNearestEventDay(initialEvents),
+  );
+
   function toggleEvent(eventId) {
-    const eventToToggle = events.find((event) => event.id === eventId);
+    const eventToToggle = events.find(
+      (event) => event.id === eventId,
+    );
 
     if (!eventToToggle || eventToToggle.required) {
       return;
@@ -45,7 +60,10 @@ function App() {
       return;
     }
 
-    const conflicts = findEventConflicts(eventToToggle, events);
+    const conflicts = findEventConflicts(
+      eventToToggle,
+      events,
+    );
 
     if (conflicts.length > 0) {
       setConflictMessage(
@@ -71,26 +89,50 @@ function App() {
     setConflictMessage("");
   }
 
-  function filterEvents() {
+  function eventMatchesFilter(event) {
     switch (activeFilter) {
       case "Selected":
-        return events.filter((event) => event.selected);
+        return event.selected;
 
       case "Required":
-        return events.filter((event) => event.required);
+        return event.required;
 
       case "All":
-        return events;
+        return true;
 
       default:
-        return events.filter(
-          (event) => event.category === activeFilter,
-        );
+        return event.category === activeFilter;
     }
   }
 
-  const filteredEvents = filterEvents();
-  const groupedEvents = groupEventsByDay(filteredEvents);
+  const visibleEvents = events.filter(
+    (event) =>
+      event.day === activeDay &&
+      eventMatchesFilter(event),
+  );
+
+  function selectPreviousDay() {
+    const currentIndex = eventDays.indexOf(activeDay);
+
+    if (currentIndex > 0) {
+      setActiveDay(eventDays[currentIndex - 1]);
+      setConflictMessage("");
+    }
+  }
+
+  function selectNextDay() {
+    const currentIndex = eventDays.indexOf(activeDay);
+
+    if (currentIndex < eventDays.length - 1) {
+      setActiveDay(eventDays[currentIndex + 1]);
+      setConflictMessage("");
+    }
+  }
+
+  const activeDayIndex = eventDays.indexOf(activeDay);
+  const hasPreviousDay = activeDayIndex > 0;
+  const hasNextDay =
+    activeDayIndex < eventDays.length - 1;
 
   return (
     <main className="app">
@@ -103,7 +145,8 @@ function App() {
           <h1>Speedy Scheduler</h1>
 
           <p className="app-header__description">
-            Plan a busy weekend without missing the events that matter most.
+            Plan a busy weekend without missing the events
+            that matter most.
           </p>
         </div>
 
@@ -115,8 +158,12 @@ function App() {
       <section className="schedule-summary">
         <div>
           <span className="schedule-summary__number">
-            {events.filter((event) => event.selected).length}
+            {
+              events.filter((event) => event.selected)
+                .length
+            }
           </span>
+
           <span className="schedule-summary__label">
             Scheduled
           </span>
@@ -124,8 +171,12 @@ function App() {
 
         <div>
           <span className="schedule-summary__number">
-            {events.filter((event) => event.required).length}
+            {
+              events.filter((event) => event.required)
+                .length
+            }
           </span>
+
           <span className="schedule-summary__label">
             Required
           </span>
@@ -133,17 +184,48 @@ function App() {
 
         <div>
           <span className="schedule-summary__number">
-            {events.filter(
-              (event) => !event.required && !event.selected,
-            ).length}
+            {
+              events.filter(
+                (event) =>
+                  !event.required && !event.selected,
+              ).length
+            }
           </span>
+
           <span className="schedule-summary__label">
             Optional
           </span>
         </div>
       </section>
 
-      <nav className="filter-bar" aria-label="Schedule filters">
+      <nav
+        className="day-tabs"
+        aria-label="Choose schedule day"
+      >
+        {eventDays.map((day) => (
+          <button
+            key={day}
+            type="button"
+            className={
+              activeDay === day
+                ? "day-tab day-tab--active"
+                : "day-tab"
+            }
+            onClick={() => {
+              setActiveDay(day);
+              setConflictMessage("");
+            }}
+            aria-pressed={activeDay === day}
+          >
+            {formatDayTab(day)}
+          </button>
+        ))}
+      </nav>
+
+      <nav
+        className="filter-bar"
+        aria-label="Filter events"
+      >
         {FILTERS.map((filter) => (
           <button
             key={filter}
@@ -177,28 +259,44 @@ function App() {
         </div>
       )}
 
-      {Object.keys(groupedEvents).length > 0 ? (
-        <div className="schedule">
-          {Object.entries(groupedEvents).map(
-            ([day, dayEvents]) => (
-              <DaySchedule
-                key={day}
-                day={day}
-                events={dayEvents}
-                allEvents={events}
-                onToggleEvent={toggleEvent}
-              />
-            ),
-          )}
-        </div>
+      {visibleEvents.length > 0 ? (
+        <DaySchedule
+          day={activeDay}
+          events={visibleEvents}
+          allEvents={events}
+          onToggleEvent={toggleEvent}
+        />
       ) : (
         <div className="empty-state">
           <h2>No events found</h2>
           <p>
-            There are no events matching the selected filter.
+            There are no {activeFilter.toLowerCase()} events
+            scheduled for this day.
           </p>
         </div>
       )}
+
+      <div className="day-navigation">
+        <button
+          type="button"
+          onClick={selectPreviousDay}
+          disabled={!hasPreviousDay}
+        >
+          ← Previous day
+        </button>
+
+        <span>
+          Day {activeDayIndex + 1} of {eventDays.length}
+        </span>
+
+        <button
+          type="button"
+          onClick={selectNextDay}
+          disabled={!hasNextDay}
+        >
+          Next day →
+        </button>
+      </div>
     </main>
   );
 }
