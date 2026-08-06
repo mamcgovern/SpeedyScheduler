@@ -1,8 +1,8 @@
 import {
-    useEffect,
     useMemo,
     useState,
 } from "react";
+
 import spottersGuideData from "../data/spottersGuide.json";
 
 const SERIES_OPTIONS = [
@@ -15,9 +15,6 @@ const SERIES_OPTIONS = [
         label: "NASCAR O'Reilly Auto Parts Series",
     },
 ];
-
-const FAVORITES_STORAGE_KEY =
-    "speedySchedulerFavoriteDrivers";
 
 function normalizeSeriesData(seriesData) {
     if (!Array.isArray(seriesData)) {
@@ -34,33 +31,10 @@ function normalizeSeriesData(seriesData) {
         );
 }
 
-function loadFavoriteDrivers() {
-    try {
-        const savedFavorites = localStorage.getItem(
-            FAVORITES_STORAGE_KEY
-        );
-
-        if (!savedFavorites) {
-            return [];
-        }
-
-        const parsedFavorites =
-            JSON.parse(savedFavorites);
-
-        return Array.isArray(parsedFavorites)
-            ? parsedFavorites.slice(0, 3)
-            : [];
-    } catch (error) {
-        console.error(
-            "Could not load favorite drivers:",
-            error
-        );
-
-        return [];
-    }
-}
-
-function SpottersGuidePage() {
+function SpottersGuidePage({
+    favoriteDrivers,
+    onUpdateFavoriteDrivers,
+}) {
     const [activeSeries, setActiveSeries] =
         useState("Cup");
 
@@ -73,28 +47,9 @@ function SpottersGuidePage() {
     ] = useState("All");
 
     const [
-        favoriteDrivers,
-        setFavoriteDrivers,
-    ] = useState(loadFavoriteDrivers);
-
-    const [
         favoriteMessage,
         setFavoriteMessage,
     ] = useState("");
-
-    useEffect(() => {
-        try {
-            localStorage.setItem(
-                FAVORITES_STORAGE_KEY,
-                JSON.stringify(favoriteDrivers)
-            );
-        } catch (error) {
-            console.error(
-                "Could not save favorite drivers:",
-                error
-            );
-        }
-    }, [favoriteDrivers]);
 
     const seriesEntries = useMemo(() => {
         return normalizeSeriesData(
@@ -125,9 +80,9 @@ function SpottersGuidePage() {
             .filter((entry) => {
                 const matchesManufacturer =
                     manufacturerFilter ===
-                    "All" ||
+                        "All" ||
                     entry.manufacturer ===
-                    manufacturerFilter;
+                        manufacturerFilter;
 
                 const searchableText = [
                     entry.driver,
@@ -219,20 +174,21 @@ function SpottersGuidePage() {
         setFavoriteMessage("");
     }
 
-    function toggleFavorite(driverName) {
+    async function toggleFavorite(driverName) {
         const isAlreadyFavorite =
             favoriteDrivers.includes(
                 driverName
             );
 
         if (isAlreadyFavorite) {
-            setFavoriteDrivers(
-                (currentFavorites) =>
-                    currentFavorites.filter(
-                        (driver) =>
-                            driver !==
-                            driverName
-                    )
+            const updatedFavorites =
+                favoriteDrivers.filter(
+                    (driver) =>
+                        driver !== driverName
+                );
+
+            await onUpdateFavoriteDrivers(
+                updatedFavorites
             );
 
             setFavoriteMessage("");
@@ -247,11 +203,13 @@ function SpottersGuidePage() {
             return;
         }
 
-        setFavoriteDrivers(
-            (currentFavorites) => [
-                ...currentFavorites,
-                driverName,
-            ]
+        const updatedFavorites = [
+            ...favoriteDrivers,
+            driverName,
+        ];
+
+        await onUpdateFavoriteDrivers(
+            updatedFavorites
         );
 
         setFavoriteMessage("");
@@ -270,7 +228,9 @@ function SpottersGuidePage() {
                     Race weekend reference
                 </p>
 
-                <h1>Spotter&apos;s Guide</h1>
+                <h1>
+                    Spotter&apos;s Guide
+                </h1>
 
                 <p>
                     Browse the drivers, car
@@ -294,7 +254,7 @@ function SpottersGuidePage() {
                             type="button"
                             className={
                                 activeSeries ===
-                                    series.value
+                                series.value
                                     ? "series-tab series-tab--active"
                                     : "series-tab"
                             }
@@ -318,7 +278,7 @@ function SpottersGuidePage() {
                 <div className="favorite-drivers__heading">
                     <div>
                         <p className="home-card__eyebrow">
-                            Your favorites
+                            Shared favorites
                         </p>
 
                         <h2>
@@ -335,7 +295,7 @@ function SpottersGuidePage() {
                 </div>
 
                 {favoriteDrivers.length >
-                    0 ? (
+                0 ? (
                     <div className="favorite-drivers__list">
                         {favoriteDrivers.map(
                             (driver) => (
@@ -371,9 +331,10 @@ function SpottersGuidePage() {
                 ) : (
                     <p className="favorite-drivers__empty">
                         Select the star on up
-                        to three driver cards
-                        to keep them at the
-                        top.
+                        to three driver cards.
+                        Your choices will be
+                        shared between both
+                        devices.
                     </p>
                 )}
 
@@ -403,12 +364,9 @@ function SpottersGuidePage() {
                     <input
                         type="search"
                         value={searchTerm}
-                        onChange={(
-                            event
-                        ) =>
+                        onChange={(event) =>
                             setSearchTerm(
-                                event.target
-                                    .value
+                                event.target.value
                             )
                         }
                         placeholder="Search driver, number, team, or sponsor"
@@ -424,12 +382,9 @@ function SpottersGuidePage() {
                         value={
                             manufacturerFilter
                         }
-                        onChange={(
-                            event
-                        ) =>
+                        onChange={(event) =>
                             setManufacturerFilter(
-                                event.target
-                                    .value
+                                event.target.value
                             )
                         }
                     >
@@ -466,7 +421,7 @@ function SpottersGuidePage() {
                             filteredEntries.length
                         }{" "}
                         {filteredEntries.length ===
-                            1
+                        1
                             ? "car"
                             : "cars"}
                     </p>
@@ -494,20 +449,33 @@ function SpottersGuidePage() {
                                     <div className="spotter-card__image-wrapper">
                                         {entry.image ? (
                                             <img
-                                                src={entry.image}
+                                                src={
+                                                    entry.image
+                                                }
                                                 alt={`Number ${entry.number} ${entry.driver} ${entry.paintScheme} car`}
                                                 className="spotter-card__image"
                                                 loading="lazy"
                                             />
                                         ) : (
                                             <div className="spotter-card__image-placeholder">
-                                                <span aria-hidden="true">🏎️</span>
-                                                <p>Image not available</p>
+                                                <span
+                                                    aria-hidden="true"
+                                                >
+                                                    🏎️
+                                                </span>
+
+                                                <p>
+                                                    Image
+                                                    not
+                                                    available
+                                                </p>
                                             </div>
                                         )}
 
                                         <span className="spotter-card__number">
-                                            {entry.number}
+                                            {
+                                                entry.number
+                                            }
                                         </span>
 
                                         <button
@@ -517,15 +485,23 @@ function SpottersGuidePage() {
                                                     ? "spotter-card__favorite spotter-card__favorite--active"
                                                     : "spotter-card__favorite"
                                             }
-                                            onClick={() => toggleFavorite(entry.driver)}
+                                            onClick={() =>
+                                                toggleFavorite(
+                                                    entry.driver
+                                                )
+                                            }
                                             aria-label={
                                                 isFavorite
                                                     ? `Remove ${entry.driver} from favorites`
                                                     : `Add ${entry.driver} to favorites`
                                             }
-                                            aria-pressed={isFavorite}
+                                            aria-pressed={
+                                                isFavorite
+                                            }
                                         >
-                                            {isFavorite ? "★" : "☆"}
+                                            {isFavorite
+                                                ? "★"
+                                                : "☆"}
                                         </button>
                                     </div>
 

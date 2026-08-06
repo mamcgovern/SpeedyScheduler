@@ -18,6 +18,7 @@ import SpottersGuidePage from "./pages/SpottersGuidePage";
 import SignInPage from "./pages/SignInPage";
 
 import {
+    saveFavoriteDrivers,
     saveSelectedEventIds,
     subscribeToSharedSchedule,
 } from "./services/sharedSchedule";
@@ -26,8 +27,17 @@ import "./App.css";
 
 function App() {
     const [events, setEvents] = useState(initialEvents);
+
+    const [
+        favoriteDrivers,
+        setFavoriteDrivers,
+    ] = useState([]);
+
     const [user, setUser] = useState(null);
-    const [authLoading, setAuthLoading] = useState(true);
+
+    const [authLoading, setAuthLoading] =
+        useState(true);
+
     const [scheduleLoading, setScheduleLoading] =
         useState(true);
 
@@ -60,12 +70,17 @@ function App() {
                                 (event) =>
                                     event.required
                             )
-                            .map((event) => event.id);
+                            .map(
+                                (event) =>
+                                    event.id
+                            );
 
                     try {
                         await saveSelectedEventIds(
                             requiredEventIds
                         );
+
+                        await saveFavoriteDrivers([]);
                     } catch (error) {
                         console.error(
                             "Could not create the shared schedule:",
@@ -78,22 +93,37 @@ function App() {
                     return;
                 }
 
-                const selectedEventIds = new Set(
-                    sharedSchedule.selectedEventIds ?? []
-                );
+                const selectedEventIds =
+                    new Set(
+                        sharedSchedule.selectedEventIds ??
+                            []
+                    );
 
-                const updatedEvents = initialEvents.map(
-                    (event) => ({
-                        ...event,
-                        selected:
-                            event.required ||
-                            selectedEventIds.has(
-                                event.id
-                            ),
-                    })
-                );
+                const updatedEvents =
+                    initialEvents.map(
+                        (event) => ({
+                            ...event,
+                            selected:
+                                event.required ||
+                                selectedEventIds.has(
+                                    event.id
+                                ),
+                        })
+                    );
 
                 setEvents(updatedEvents);
+
+                setFavoriteDrivers(
+                    Array.isArray(
+                        sharedSchedule.favoriteDrivers
+                    )
+                        ? sharedSchedule.favoriteDrivers.slice(
+                              0,
+                              3
+                          )
+                        : []
+                );
+
                 setScheduleLoading(false);
             },
             (error) => {
@@ -121,7 +151,6 @@ function App() {
             return;
         }
 
-        // Required events cannot be removed.
         if (
             eventToUpdate.required &&
             !shouldBeSelected
@@ -131,20 +160,21 @@ function App() {
 
         const previousEvents = events;
 
-        const updatedEvents = events.map((event) => {
-            if (event.id !== eventId) {
-                return event;
+        const updatedEvents = events.map(
+            (event) => {
+                if (event.id !== eventId) {
+                    return event;
+                }
+
+                return {
+                    ...event,
+                    selected:
+                        event.required ||
+                        shouldBeSelected,
+                };
             }
+        );
 
-            return {
-                ...event,
-                selected:
-                    event.required ||
-                    shouldBeSelected,
-            };
-        });
-
-        // Update immediately so the page feels responsive.
         setEvents(updatedEvents);
 
         const selectedEventIds = updatedEvents
@@ -169,6 +199,43 @@ function App() {
         }
     }
 
+    async function updateFavoriteDrivers(
+        updatedFavorites
+    ) {
+        if (!Array.isArray(updatedFavorites)) {
+            return;
+        }
+
+        const limitedFavorites =
+            updatedFavorites.slice(0, 3);
+
+        const previousFavorites =
+            favoriteDrivers;
+
+        setFavoriteDrivers(
+            limitedFavorites
+        );
+
+        try {
+            await saveFavoriteDrivers(
+                limitedFavorites
+            );
+        } catch (error) {
+            console.error(
+                "Could not save favorite drivers:",
+                error
+            );
+
+            setFavoriteDrivers(
+                previousFavorites
+            );
+
+            window.alert(
+                "Favorite drivers could not be updated. Please try again."
+            );
+        }
+    }
+
     async function handleSignOut() {
         try {
             await signOut(auth);
@@ -187,7 +254,9 @@ function App() {
     if (authLoading) {
         return (
             <main className="app-loading">
-                <p>Loading Speedy Scheduler...</p>
+                <p>
+                    Loading Speedy Scheduler...
+                </p>
             </main>
         );
     }
@@ -199,7 +268,9 @@ function App() {
     if (scheduleLoading) {
         return (
             <main className="app-loading">
-                <p>Loading shared schedule...</p>
+                <p>
+                    Loading shared schedule...
+                </p>
             </main>
         );
     }
@@ -216,7 +287,9 @@ function App() {
                     <Route
                         path="/"
                         element={
-                            <HomePage events={events} />
+                            <HomePage
+                                events={events}
+                            />
                         }
                     />
 
@@ -256,7 +329,14 @@ function App() {
                     <Route
                         path="/spotters-guide"
                         element={
-                            <SpottersGuidePage />
+                            <SpottersGuidePage
+                                favoriteDrivers={
+                                    favoriteDrivers
+                                }
+                                onUpdateFavoriteDrivers={
+                                    updateFavoriteDrivers
+                                }
+                            />
                         }
                     />
                 </Routes>
