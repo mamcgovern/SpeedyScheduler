@@ -31,7 +31,7 @@ import {
   subscribeToSharedSchedule,
 } from "./services/sharedSchedule";
 
-import "./App.css";
+import "./styles/index.css";
 
 const NOTES_SAVE_DELAY = 700;
 
