@@ -136,20 +136,17 @@ function Navbar() {
                         {menuOpen && (
                             <div className="navbar__dropdown">
                                 <NavLink
-                                    to="/events"
+                                    to="/spotters-guide"
                                     className="navbar__dropdown-link"
                                     onClick={closeMenu}
                                 >
-                                    <span>📅</span>
+                                    <span>🏎️</span>
 
                                     <span>
-                                        <strong>
-                                            All Events
-                                        </strong>
+                                        <strong>Spotter&apos;s Guide</strong>
 
                                         <small>
-                                            Browse every
-                                            event
+                                            View drivers and paint schemes
                                         </small>
                                     </span>
                                 </NavLink>
@@ -224,10 +221,10 @@ function Navbar() {
                     </NavLink>
 
                     <NavLink
-                        to="/events"
+                        to="/spotters-guide"
                         onClick={closeMenu}
                     >
-                        📋 All Events
+                        🏎️ Spotter&apos;s Guide
                     </NavLink>
 
                     <NavLink

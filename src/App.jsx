@@ -7,6 +7,7 @@ import SchedulerPage from "./pages/SchedulerPage";
 import MySchedulePage from "./pages/MySchedulePage";
 import EventsPage from "./pages/EventsPage";
 import AboutPage from "./pages/AboutPage";
+import SpottersGuidePage from "./pages/SpottersGuidePage";
 import "./App.css";
 
 function App() {
@@ -38,6 +39,11 @@ function App() {
           <Route
             path="/events"
             element={<EventsPage events={events} />}
+          />
+
+          <Route
+            path="/spotters-guide"
+            element={<SpottersGuidePage />}
           />
 
           <Route path="/about" element={<AboutPage />} />

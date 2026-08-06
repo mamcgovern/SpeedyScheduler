@@ -1,0 +1,302 @@
+{
+    "Cup": [
+        {
+            "driver": "Ross Chastain",
+            "number": 1,
+            "paintScheme": "Busch Light Farming",
+            "manufacturer": "Chevrolet",
+            "team": "Trackhouse Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_1-922x400.jpg"
+        },
+        {
+            "driver": "Austin Cindric",
+            "number": 2,
+            "paintScheme": "Freightliner",
+            "manufacturer": "Ford",
+            "team": "Team Penske",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NCS_24Iowa_2-922x400.jpg"
+        },
+        {
+            "driver": "Austin Dillon",
+            "number": 3,
+            "paintScheme": "Get Bioethanol",
+            "manufacturer": "Chevrolet",
+            "team": "Richard Childress Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_3-922x400.jpg"
+        },
+        {
+            "driver": "Noah Gragson",
+            "number": 4,
+            "paintScheme": "Long John Silver's",
+            "manufacturer": "Ford",
+            "team": "Front Row Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_4-922x400.jpg"
+        },
+        {
+            "driver": "Kyle Larson",
+            "number": 5,
+            "paintScheme": "HendrickCars.com",
+            "manufacturer": "Chevrolet",
+            "team": "Hendrick Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_5-922x400.jpg"
+        },
+        {
+            "driver": "Brad Keselowski",
+            "number": 6,
+            "paintScheme": "Trimble",
+            "manufacturer": "Ford",
+            "team": "RFK Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_6-922x400.jpg"
+        },
+        {
+            "driver": "Daniel Suárez",
+            "number": 7,
+            "paintScheme": "Cal Ripken, Sr. Foundation",
+            "manufacturer": "Chevrolet",
+            "team": "Spire Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_7-922x400.jpg"
+        },
+        {
+            "driver": "Chase Elliott",
+            "number": 9,
+            "paintScheme": "NAPA Auto Parts",
+            "manufacturer": "Chevrolet",
+            "team": "Hendrick Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_9-922x400.jpg"
+        },
+        {
+            "driver": "Ty Dillon",
+            "number": 10,
+            "paintScheme": "Sea Best",
+            "manufacturer": "Chevrolet",
+            "team": "Kaulig Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_10-922x400.jpg"
+        },
+        {
+            "driver": "Denny Hamlin",
+            "number": 11,
+            "paintScheme": "Progressive Insurance",
+            "manufacturer": "Toyota",
+            "team": "Joe Gibbs Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_11-922x400.jpg"
+        },
+        {
+            "driver": "Ryan Blaney",
+            "number": 12,
+            "paintScheme": "Menards/Pennington",
+            "manufacturer": "Ford",
+            "team": "Team Penske",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NCS_24Iowa_12-922x400.jpg"
+        },
+        {
+            "driver": "AJ Allmendinger",
+            "number": 16,
+            "paintScheme": "Campers Inn RV",
+            "manufacturer": "Chevrolet",
+            "team": "Kaulig Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_16-922x400.jpg"
+        },
+        {
+            "driver": "Chris Buescher",
+            "number": 17,
+            "paintScheme": "Body Guard",
+            "manufacturer": "Ford",
+            "team": "RFK Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_17-922x400.jpg"
+        },
+        {
+            "driver": "Chase Briscoe",
+            "number": 19,
+            "paintScheme": "Bass Pro Shops",
+            "manufacturer": "Toyota",
+            "team": "Joe Gibbs Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_19-922x400.jpg"
+        },
+        {
+            "driver": "Christopher Bell",
+            "number": 20,
+            "paintScheme": "DeWalt",
+            "manufacturer": "Toyota",
+            "team": "Joe Gibbs Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_20-922x400.jpg"
+        },
+        {
+            "driver": "Josh Berry",
+            "number": 21,
+            "paintScheme": "Menards/Master Force Tools",
+            "manufacturer": "Ford",
+            "team": "Wood Brothers Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NCS_24Iowa_21-922x400.jpg"
+        },
+        {
+            "driver": "Joey Logano",
+            "number": 22,
+            "paintScheme": "Shell-Pennzoil",
+            "manufacturer": "Ford",
+            "team": "Team Penske",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NCS_24Iowa_22-922x400.jpg"
+        },
+        {
+            "driver": "Bubba Wallace",
+            "number": 23,
+            "paintScheme": "Hardee's",
+            "manufacturer": "Toyota",
+            "team": "23XI Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_23-922x400.jpg"
+        },
+        {
+            "driver": "William Byron",
+            "number": 24,
+            "paintScheme": "Raptor",
+            "manufacturer": "Chevrolet",
+            "team": "Hendrick Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_24-922x400.jpg"
+        },
+        {
+            "driver": "Austin Hill",
+            "number": 33,
+            "paintScheme": "Cheddar's Scratch Kitchen",
+            "manufacturer": "Chevrolet",
+            "team": "Richard Childress Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_33-922x400.jpg"
+        },
+        {
+            "driver": "Todd Gilliland",
+            "number": 34,
+            "paintScheme": "Love's Travel Stops",
+            "manufacturer": "Ford",
+            "team": "Front Row Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_34-922x400.jpg"
+        },
+        {
+            "driver": "Riley Herbst",
+            "number": 35,
+            "paintScheme": "Monster Energy",
+            "manufacturer": "Toyota",
+            "team": "23XI Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NCS_24Iowa_35-922x400.jpg"
+        },
+        {
+            "driver": "Zane Smith",
+            "number": 38,
+            "paintScheme": "Patriot Mobile",
+            "manufacturer": "Ford",
+            "team": "Front Row Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_38-922x400.jpg"
+        },
+        {
+            "driver": "Cole Custer",
+            "number": 41,
+            "paintScheme": "HassTooling.com",
+            "manufacturer": "Chevrolet",
+            "team": "Haas Factory Team",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_41-922x400.jpg"
+        },
+        {
+            "driver": "John Hunter Nemechek",
+            "number": 42,
+            "paintScheme": "Pye-Barker Fire & Safety",
+            "manufacturer": "Toyota",
+            "team": "Legacy Motor Club",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NCS_24Iowa_42-922x400.jpg"
+        },
+        {
+            "driver": "Erik Jones",
+            "number": 43,
+            "paintScheme": "Dollar Tree",
+            "manufacturer": "Toyota",
+            "team": "Legacy Motor Club",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NCS_24Iowa_43-922x400.jpg"
+        },
+        {
+            "driver": "Tyler Reddick",
+            "number": 45,
+            "paintScheme": "SupplyHouse",
+            "manufacturer": "Toyota",
+            "team": "23XI Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/05/26_NCS_24Iowa_45-922x400.jpg"
+        },
+        {
+            "driver": "Ricky Stenhouse Jr.",
+            "number": 47,
+            "paintScheme": "NOS Energy",
+            "manufacturer": "Chevrolet",
+            "team": "HYAK Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_47-922x400.jpg"
+        },
+        {
+            "driver": "Alex Bowman",
+            "number": 48,
+            "paintScheme": "Ally",
+            "manufacturer": "Chevrolet",
+            "team": "Hendrick Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_48-922x400.jpg"
+        },
+        {
+            "driver": "Cody Ware",
+            "number": 51,
+            "paintScheme": "Costa Oil Filters",
+            "manufacturer": "Chevrolet",
+            "team": "Rick Ware Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_51-922x400.jpg"
+        },
+        {
+            "driver": "Ty Gibbs",
+            "number": 54,
+            "paintScheme": "SiriusXM",
+            "manufacturer": "Toyota",
+            "team": "Joe Gibbs Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_54-922x400.jpg"
+        },
+        {
+            "driver": "Ryan Preece",
+            "number": 60,
+            "paintScheme": "Kroger/Force Factor",
+            "manufacturer": "Ford",
+            "team": "RFK Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_60-922x400.jpg"
+        },
+        {
+            "driver": "Dale McDowell",
+            "number": 71,
+            "paintScheme": "Delaware Life",
+            "manufacturer": "Chevrolet",
+            "team": "Spire Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_71-922x400.jpg"
+        },
+        {
+            "driver": "Carson Hocevar",
+            "number": 77,
+            "paintScheme": "Zeigler Auto Group",
+            "manufacturer": "Chevrolet",
+            "team": "Spire Motorsports",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_77-922x400.jpg"
+        },
+        {
+            "driver": "Connor Zilisch",
+            "number": 88,
+            "paintScheme": "Roto-Rooter",
+            "manufacturer": "Chevrolet",
+            "team": "Trackhouse Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_88-922x400.jpg"
+        },
+        {
+            "driver": "Shane Van Gisbergen",
+            "number": 97,
+            "paintScheme": "Red Bull",
+            "manufacturer": "Chevrolet",
+            "team": "Trackhouse Racing",
+            "image": "https://www.nascar.com/wp-content/uploads/sites/7/2026/08/04/26_NCS_24Iowa_97-922x400.jpg"
+        }
+    ],
+    "ORielly": [
+        {
+            "driver": "",
+            "number": 0,
+            "paintScheme": "",
+            "manufacturer": "",
+            "team": "",
+            "image": ""
+        }
+    ]
+}

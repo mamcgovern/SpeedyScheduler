@@ -220,6 +220,22 @@ function HomePage({ events }) {
               </p>
             </div>
           </a>
+
+          <Link
+            to="/spotters-guide"
+            className="quick-link-card"
+          >
+            <span>🏎️</span>
+
+            <div>
+              <h3>Spotter&apos;s Guide</h3>
+
+              <p>
+                Identify drivers, car numbers, and paint
+                schemes.
+              </p>
+            </div>
+          </Link>
         </div>
       </section>
     </div>
