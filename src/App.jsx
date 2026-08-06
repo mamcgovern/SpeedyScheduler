@@ -6,7 +6,6 @@ import HomePage from "./pages/HomePage";
 import SchedulerPage from "./pages/SchedulerPage";
 import MySchedulePage from "./pages/MySchedulePage";
 import EventsPage from "./pages/EventsPage";
-import AboutPage from "./pages/AboutPage";
 import SpottersGuidePage from "./pages/SpottersGuidePage";
 import "./App.css";
 
@@ -42,7 +41,7 @@ function App() {
           />
 
           <Route
-            path="/events"
+            path="/racing-events"
             element={<EventsPage events={events} />}
           />
 
@@ -50,8 +49,6 @@ function App() {
             path="/spotters-guide"
             element={<SpottersGuidePage />}
           />
-
-          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </main>
     </>

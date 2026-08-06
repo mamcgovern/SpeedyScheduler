@@ -29,6 +29,7 @@ function Navbar() {
             "mousedown",
             handleOutsideClick
         );
+
         document.addEventListener(
             "keydown",
             handleEscape
@@ -39,6 +40,7 @@ function Navbar() {
                 "mousedown",
                 handleOutsideClick
             );
+
             document.removeEventListener(
                 "keydown",
                 handleEscape
@@ -66,175 +68,127 @@ function Navbar() {
                     </span>
                 </NavLink>
 
-                {/* Desktop Navigation */}
-                <nav
-                    className="navbar__desktop-links"
-                    aria-label="Main navigation"
+                <div
+                    className="navbar__menu"
+                    ref={menuRef}
                 >
-                    <NavLink
-                        to="/"
-                        end
-                        className={({ isActive }) =>
-                            isActive
-                                ? "navbar__link navbar__link--active"
-                                : "navbar__link"
+                    <button
+                        type="button"
+                        className={
+                            menuOpen
+                                ? "navbar__hamburger navbar__hamburger--open"
+                                : "navbar__hamburger"
+                        }
+                        onClick={() =>
+                            setMenuOpen(
+                                (current) => !current
+                            )
+                        }
+                        aria-expanded={menuOpen}
+                        aria-haspopup="true"
+                        aria-label={
+                            menuOpen
+                                ? "Close navigation menu"
+                                : "Open navigation menu"
                         }
                     >
-                        Home
-                    </NavLink>
+                        <span />
+                        <span />
+                        <span />
+                    </button>
 
-                    <NavLink
-                        to="/scheduler"
-                        className={({ isActive }) =>
-                            isActive
-                                ? "navbar__link navbar__link--active"
-                                : "navbar__link"
-                        }
-                    >
-                        Scheduler
-                    </NavLink>
-
-                    <NavLink
-                        to="/my-schedule"
-                        className={({ isActive }) =>
-                            isActive
-                                ? "navbar__link navbar__link--active"
-                                : "navbar__link"
-                        }
-                    >
-                        My Schedule
-                    </NavLink>
-
-                    <div
-                        className="navbar__menu"
-                        ref={menuRef}
-                    >
-                        <button
-                            type="button"
-                            className="navbar__menu-button"
-                            onClick={() =>
-                                setMenuOpen(
-                                    (current) => !current
-                                )
-                            }
-                            aria-expanded={menuOpen}
-                            aria-haspopup="true"
+                    {menuOpen && (
+                        <nav
+                            className="navbar__dropdown"
+                            aria-label="Main navigation"
                         >
-                            More
-
-                            <span
-                                className={
-                                    menuOpen
-                                        ? "navbar__chevron navbar__chevron--open"
-                                        : "navbar__chevron"
-                                }
+                            <NavLink
+                                to="/"
+                                end
+                                className="navbar__dropdown-link"
+                                onClick={closeMenu}
                             >
-                                ▾
-                            </span>
-                        </button>
+                                <span>🏠</span>
 
-                        {menuOpen && (
-                            <div className="navbar__dropdown">
-                                <NavLink
-                                    to="/spotters-guide"
-                                    className="navbar__dropdown-link"
-                                    onClick={closeMenu}
-                                >
-                                    <span>🏎️</span>
+                                <span>
+                                    <strong>Home</strong>
+                                    <small>
+                                        Race weekend dashboard
+                                    </small>
+                                </span>
+                            </NavLink>
 
-                                    <span>
-                                        <strong>Spotter&apos;s Guide</strong>
+                            <NavLink
+                                to="/my-schedule"
+                                className="navbar__dropdown-link"
+                                onClick={closeMenu}
+                            >
+                                <span>✅</span>
 
-                                        <small>
-                                            View drivers and paint schemes
-                                        </small>
-                                    </span>
-                                </NavLink>
+                                <span>
+                                    <strong>
+                                        My Schedule
+                                    </strong>
+                                    <small>
+                                        View selected events
+                                    </small>
+                                </span>
+                            </NavLink>
 
-                                <NavLink
-                                    to="/about"
-                                    className="navbar__dropdown-link"
-                                    onClick={closeMenu}
-                                >
-                                    <span>ℹ️</span>
+                            <NavLink
+                                to="/scheduler"
+                                className="navbar__dropdown-link"
+                                onClick={closeMenu}
+                            >
+                                <span>📅</span>
 
-                                    <span>
-                                        <strong>
-                                            About
-                                        </strong>
+                                <span>
+                                    <strong>
+                                        Scheduler
+                                    </strong>
+                                    <small>
+                                        Browse and select events
+                                    </small>
+                                </span>
+                            </NavLink>
 
-                                        <small>
-                                            About Speedy
-                                            Scheduler
-                                        </small>
-                                    </span>
-                                </NavLink>
-                            </div>
-                        )}
-                    </div>
-                </nav>
+                            <NavLink
+                                to="/racing-events"
+                                className="navbar__dropdown-link"
+                                onClick={closeMenu}
+                            >
+                                <span>🏁</span>
 
-                {/* Mobile Menu Button */}
-                <button
-                    type="button"
-                    className="navbar__mobile-button"
-                    onClick={() =>
-                        setMenuOpen(
-                            (current) => !current
-                        )
-                    }
-                    aria-expanded={menuOpen}
-                    aria-label="Open navigation menu"
-                >
-                    <span />
-                    <span />
-                    <span />
-                </button>
+                                <span>
+                                    <strong>
+                                        Racing Events
+                                    </strong>
+                                    <small>
+                                        Browse the full racing event list
+                                    </small>
+                                </span>
+                            </NavLink>
+
+                            <NavLink
+                                to="/spotters-guide"
+                                className="navbar__dropdown-link"
+                                onClick={closeMenu}
+                            >
+                                <span>🏎️</span>
+
+                                <span>
+                                    <strong>
+                                        Spotter&apos;s Guide
+                                    </strong>
+                                    <small>
+                                        View drivers and paint schemes
+                                    </small>
+                                </span>
+                            </NavLink>
+                        </nav>
+                    )}
+                </div>
             </div>
-
-            {/* Mobile Menu */}
-            {menuOpen && (
-                <nav
-                    className="navbar__mobile-menu"
-                    aria-label="Mobile navigation"
-                >
-                    <NavLink
-                        to="/"
-                        end
-                        onClick={closeMenu}
-                    >
-                        🏠 Home
-                    </NavLink>
-
-                    <NavLink
-                        to="/scheduler"
-                        onClick={closeMenu}
-                    >
-                        📅 Scheduler
-                    </NavLink>
-
-                    <NavLink
-                        to="/my-schedule"
-                        onClick={closeMenu}
-                    >
-                        ✅ My Schedule
-                    </NavLink>
-
-                    <NavLink
-                        to="/spotters-guide"
-                        onClick={closeMenu}
-                    >
-                        🏎️ Spotter&apos;s Guide
-                    </NavLink>
-
-                    <NavLink
-                        to="/about"
-                        onClick={closeMenu}
-                    >
-                        ℹ️ About
-                    </NavLink>
-                </nav>
-            )}
         </header>
     );
 }
