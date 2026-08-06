@@ -16,19 +16,12 @@ function MySchedulePage({
     events,
     onUpdateEventSelection,
 }) {
-    /*
-     * Keep only events included in the shared schedule.
-     */
     const selectedEvents = useMemo(() => {
         return events.filter(
             (event) => event.selected
         );
     }, [events]);
 
-    /*
-     * Build a sorted list of dates that contain
-     * at least one selected event.
-     */
     const selectedDays = useMemo(() => {
         return [
             ...new Set(
@@ -43,18 +36,11 @@ function MySchedulePage({
         );
     }, [selectedEvents]);
 
-    /*
-     * Default to the nearest selected event day.
-     */
     const [activeDay, setActiveDay] =
         useState(() =>
             getNearestEventDay(selectedEvents)
         );
 
-    /*
-     * If the final event on the active day is removed,
-     * switch to the nearest remaining selected day.
-     */
     useEffect(() => {
         if (selectedDays.length === 0) {
             setActiveDay(null);
@@ -98,15 +84,11 @@ function MySchedulePage({
             (event) => !event.required
         ).length;
 
-    function removeEvent(eventId) {
-        onUpdateEventSelection(
+    async function removeEvent(eventId) {
+        await onUpdateEventSelection(
             eventId,
             false
         );
-    }
-
-    function selectDay(day) {
-        setActiveDay(day);
     }
 
     function selectPreviousDay() {
@@ -115,9 +97,7 @@ function MySchedulePage({
 
         if (currentIndex > 0) {
             setActiveDay(
-                selectedDays[
-                    currentIndex - 1
-                ]
+                selectedDays[currentIndex - 1]
             );
         }
     }
@@ -132,9 +112,7 @@ function MySchedulePage({
                 selectedDays.length - 1
         ) {
             setActiveDay(
-                selectedDays[
-                    currentIndex + 1
-                ]
+                selectedDays[currentIndex + 1]
             );
         }
     }
@@ -160,19 +138,17 @@ function MySchedulePage({
                 <h1>My Schedule</h1>
 
                 <p>
-                    Review the required events
-                    and optional activities
-                    currently included in your
-                    shared race weekend schedule.
+                    Review the required events and
+                    optional activities currently
+                    included in your shared race
+                    weekend schedule.
                 </p>
             </header>
 
             <section className="schedule-summary">
                 <div>
                     <span className="schedule-summary__number">
-                        {
-                            selectedEvents.length
-                        }
+                        {selectedEvents.length}
                     </span>
 
                     <span className="schedule-summary__label">
@@ -207,59 +183,44 @@ function MySchedulePage({
                         className="day-tabs"
                         aria-label="Choose schedule day"
                     >
-                        {selectedDays.map(
-                            (day) => (
-                                <button
-                                    key={day}
-                                    type="button"
-                                    className={
-                                        activeDay ===
-                                        day
-                                            ? "day-tab day-tab--active"
-                                            : "day-tab"
-                                    }
-                                    onClick={() =>
-                                        selectDay(
-                                            day
-                                        )
-                                    }
-                                    aria-pressed={
-                                        activeDay ===
-                                        day
-                                    }
-                                >
-                                    {formatDayTab(
-                                        day
-                                    )}
-                                </button>
-                            )
-                        )}
+                        {selectedDays.map((day) => (
+                            <button
+                                key={day}
+                                type="button"
+                                className={
+                                    activeDay === day
+                                        ? "day-tab day-tab--active"
+                                        : "day-tab"
+                                }
+                                onClick={() =>
+                                    setActiveDay(day)
+                                }
+                                aria-pressed={
+                                    activeDay === day
+                                }
+                            >
+                                {formatDayTab(day)}
+                            </button>
+                        ))}
                     </nav>
 
-                    {activeDayEvents.length >
-                    0 ? (
+                    {activeDayEvents.length > 0 ? (
                         <DaySchedule
                             day={activeDay}
-                            events={
-                                activeDayEvents
-                            }
+                            events={activeDayEvents}
                             allEvents={events}
-                            onToggleEvent={
-                                removeEvent
-                            }
+                            onToggleEvent={removeEvent}
                         />
                     ) : (
                         <section className="empty-state">
                             <h2>
-                                No scheduled
-                                events for this
-                                day
+                                No scheduled events for
+                                this day
                             </h2>
 
                             <p>
-                                Select another
-                                day or add more
-                                events from the
+                                Select another day or add
+                                more events from the
                                 scheduler.
                             </p>
                         </section>
@@ -268,9 +229,7 @@ function MySchedulePage({
                     <div className="day-navigation">
                         <button
                             type="button"
-                            onClick={
-                                selectPreviousDay
-                            }
+                            onClick={selectPreviousDay}
                             disabled={
                                 !hasPreviousDay
                             }
@@ -280,25 +239,16 @@ function MySchedulePage({
 
                         <span>
                             Day{" "}
-                            {activeDayIndex >=
-                            0
-                                ? activeDayIndex +
-                                  1
+                            {activeDayIndex >= 0
+                                ? activeDayIndex + 1
                                 : 0}{" "}
-                            of{" "}
-                            {
-                                selectedDays.length
-                            }
+                            of {selectedDays.length}
                         </span>
 
                         <button
                             type="button"
-                            onClick={
-                                selectNextDay
-                            }
-                            disabled={
-                                !hasNextDay
-                            }
+                            onClick={selectNextDay}
+                            disabled={!hasNextDay}
                         >
                             Next day →
                         </button>
@@ -311,9 +261,9 @@ function MySchedulePage({
                     </h2>
 
                     <p>
-                        Visit the scheduler to
-                        add optional events to
-                        your shared itinerary.
+                        Visit the scheduler to add
+                        optional events to your shared
+                        itinerary.
                     </p>
                 </section>
             )}

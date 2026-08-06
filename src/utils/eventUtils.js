@@ -135,12 +135,18 @@ export function doEventsOverlap(firstEvent, secondEvent) {
   return firstStart < secondEnd && secondStart < firstEnd;
 }
 
-export function findEventConflicts(event, events) {
+export function findEventConflicts(
+  event,
+  events
+) {
   return events.filter(
     (otherEvent) =>
       otherEvent.id !== event.id &&
       otherEvent.selected &&
-      doEventsOverlap(event, otherEvent),
+      doEventsOverlap(
+        event,
+        otherEvent
+      )
   );
 }
 

@@ -1,4 +1,5 @@
 import EventCard from "./EventCard";
+
 import {
     findEventConflicts,
     formatEventDate,
@@ -29,12 +30,13 @@ function DaySchedule({
 
             <div className="day-schedule__timeline">
                 {events.map((event) => {
-                    const conflicts = event.isSelected
-                        ? []
-                        : findEventConflicts(
-                              event,
-                              allEvents
-                          );
+                    const conflicts =
+                        event.selected
+                            ? []
+                            : findEventConflicts(
+                                  event,
+                                  allEvents
+                              );
 
                     return (
                         <EventCard

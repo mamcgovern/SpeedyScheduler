@@ -9,12 +9,24 @@ function SignInPage() {
         try {
             const provider = new GoogleAuthProvider();
 
+            provider.setCustomParameters({
+                prompt: "select_account",
+            });
+
             await signInWithPopup(auth, provider);
         } catch (error) {
-            console.error("Google sign-in failed:", error);
+            console.error("Full Google sign-in error:", error);
 
-            alert(
-                "Google sign-in could not be completed. Please try again."
+            const errorCode =
+                error?.code ?? "No Firebase error code";
+
+            const errorMessage =
+                error?.message ??
+                String(error) ??
+                "Unknown sign-in error";
+
+            window.alert(
+                `Google sign-in failed.\n\n${errorCode}\n\n${errorMessage}`
             );
         }
     }

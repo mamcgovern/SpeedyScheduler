@@ -1,4 +1,6 @@
-import { formatTimeRange } from "../utils/eventUtils";
+import {
+    formatTimeRange,
+} from "../utils/eventUtils";
 
 function EventCard({
     event,
@@ -6,8 +8,10 @@ function EventCard({
     onToggle,
 }) {
     const isMilestone = !event.end;
+
     const hasConflict =
-        !event.selected && conflicts.length > 0;
+        !event.selected &&
+        conflicts.length > 0;
 
     const categoryClass = event.category
         .toLowerCase()
@@ -17,10 +21,18 @@ function EventCard({
     const classNames = [
         "event-card",
         `event-card--${categoryClass}`,
-        event.required ? "event-card--required" : "",
-        event.selected ? "event-card--selected" : "",
-        hasConflict ? "event-card--conflict" : "",
-        isMilestone ? "event-card--milestone" : "",
+        event.required
+            ? "event-card--required"
+            : "",
+        event.selected
+            ? "event-card--selected"
+            : "",
+        hasConflict
+            ? "event-card--conflict"
+            : "",
+        isMilestone
+            ? "event-card--milestone"
+            : "",
     ]
         .filter(Boolean)
         .join(" ");
@@ -28,13 +40,16 @@ function EventCard({
     return (
         <article className={classNames}>
             <div className="event-card__time">
-                <span>{event.start || "TBA"}</span>
+                <span>
+                    {event.start || "TBA"}
+                </span>
 
                 {event.end && (
                     <>
                         <span className="event-card__time-divider">
                             to
                         </span>
+
                         <span>{event.end}</span>
                     </>
                 )}
@@ -67,7 +82,10 @@ function EventCard({
                 </div>
 
                 <p className="event-card__range">
-                    {formatTimeRange(event.start, event.end)}
+                    {formatTimeRange(
+                        event.start,
+                        event.end
+                    )}
                 </p>
 
                 {event.location && (
@@ -80,7 +98,10 @@ function EventCard({
                     <div className="event-card__conflict-message">
                         Conflicts with{" "}
                         {conflicts
-                            .map((conflict) => conflict.title)
+                            .map(
+                                (conflict) =>
+                                    conflict.title
+                            )
                             .join(", ")}
                     </div>
                 )}
@@ -100,8 +121,8 @@ function EventCard({
                             {event.selected
                                 ? "Remove"
                                 : hasConflict
-                                    ? "Conflicts"
-                                    : "Add to schedule"}
+                                  ? "Conflicts"
+                                  : "Add to schedule"}
                         </button>
                     )}
                 </div>

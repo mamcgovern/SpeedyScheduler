@@ -4,6 +4,7 @@ import {
     serverTimestamp,
     setDoc,
 } from "firebase/firestore";
+
 import { db } from "../firebase";
 
 const SCHEDULE_ID = "iowa-2026";

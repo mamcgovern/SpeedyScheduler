@@ -32,15 +32,10 @@ function SchedulerPage({
     const [conflictMessage, setConflictMessage] =
         useState("");
 
-    /*
-     * Build the sorted list of event dates.
-     */
     const eventDays = useMemo(() => {
         return [
             ...new Set(
-                events.map(
-                    (event) => event.day
-                )
+                events.map((event) => event.day)
             ),
         ].sort(
             (firstDay, secondDay) =>
@@ -49,9 +44,6 @@ function SchedulerPage({
         );
     }, [events]);
 
-    /*
-     * Open the nearest upcoming event date by default.
-     */
     const [activeDay, setActiveDay] =
         useState(() =>
             getNearestEventDay(events)
@@ -70,15 +62,11 @@ function SchedulerPage({
 
             default:
                 return (
-                    event.category ===
-                    activeFilter
+                    event.category === activeFilter
                 );
         }
     }
 
-    /*
-     * Only display events for the active day and filter.
-     */
     const visibleEvents = events.filter(
         (event) =>
             event.day === activeDay &&
@@ -87,25 +75,18 @@ function SchedulerPage({
 
     async function toggleEvent(eventId) {
         const eventToToggle = events.find(
-            (event) =>
-                event.id === eventId
+            (event) => event.id === eventId
         );
 
         if (!eventToToggle) {
             return;
         }
 
-        /*
-         * Required events cannot be removed.
-         */
         if (eventToToggle.required) {
             return;
         }
 
-        /*
-         * Selected optional events can always
-         * be removed.
-         */
+        // Selected optional events can always be removed.
         if (eventToToggle.selected) {
             await onUpdateEventSelection(
                 eventId,
@@ -116,10 +97,6 @@ function SchedulerPage({
             return;
         }
 
-        /*
-         * Check the optional event against the
-         * currently selected schedule.
-         */
         const conflicts = findEventConflicts(
             eventToToggle,
             events
@@ -214,9 +191,9 @@ function SchedulerPage({
                 <h1>Event Scheduler</h1>
 
                 <p>
-                    Browse the weekend events and
-                    add optional activities to your
-                    shared schedule.
+                    Browse the weekend events and add
+                    optional activities to your shared
+                    schedule.
                 </p>
             </header>
 
@@ -286,19 +263,13 @@ function SchedulerPage({
                         key={filter}
                         type="button"
                         className={
-                            activeFilter ===
-                            filter
+                            activeFilter === filter
                                 ? "filter-button filter-button--active"
                                 : "filter-button"
                         }
                         onClick={() => {
-                            setActiveFilter(
-                                filter
-                            );
-
-                            setConflictMessage(
-                                ""
-                            );
+                            setActiveFilter(filter);
+                            setConflictMessage("");
                         }}
                     >
                         {filter}
@@ -316,17 +287,13 @@ function SchedulerPage({
                             Schedule conflict
                         </strong>
 
-                        <p>
-                            {conflictMessage}
-                        </p>
+                        <p>{conflictMessage}</p>
                     </div>
 
                     <button
                         type="button"
                         onClick={() =>
-                            setConflictMessage(
-                                ""
-                            )
+                            setConflictMessage("")
                         }
                         aria-label="Dismiss conflict message"
                     >
@@ -340,21 +307,16 @@ function SchedulerPage({
                     day={activeDay}
                     events={visibleEvents}
                     allEvents={events}
-                    onToggleEvent={
-                        toggleEvent
-                    }
+                    onToggleEvent={toggleEvent}
                 />
             ) : (
                 <section className="empty-state">
-                    <h2>
-                        No events found
-                    </h2>
+                    <h2>No events found</h2>
 
                     <p>
                         There are no{" "}
                         {activeFilter.toLowerCase()}{" "}
-                        events scheduled for this
-                        day.
+                        events scheduled for this day.
                     </p>
                 </section>
             )}
@@ -362,12 +324,8 @@ function SchedulerPage({
             <div className="day-navigation">
                 <button
                     type="button"
-                    onClick={
-                        selectPreviousDay
-                    }
-                    disabled={
-                        !hasPreviousDay
-                    }
+                    onClick={selectPreviousDay}
+                    disabled={!hasPreviousDay}
                 >
                     ← Previous day
                 </button>
