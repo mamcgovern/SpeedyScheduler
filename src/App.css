@@ -1565,3 +1565,60 @@ select {
         0 0 0 2px rgb(245 158 11 / 18%),
         0 12px 30px rgb(0 0 0 / 9%);
 }
+
+.sign-in-page,
+.app-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    background: #151515;
+}
+
+.sign-in-card {
+    width: min(100%, 480px);
+    padding: 42px;
+    text-align: center;
+    background: white;
+    border-radius: 22px;
+    box-shadow: 0 24px 70px rgb(0 0 0 / 30%);
+}
+
+.sign-in-card__flag {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 4rem;
+}
+
+.sign-in-card h1 {
+    margin: 0 0 14px;
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    letter-spacing: -0.05em;
+}
+
+.sign-in-card > p:last-of-type {
+    margin: 0;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+.sign-in-card button {
+    width: 100%;
+    margin-top: 26px;
+    padding: 14px 18px;
+    color: white;
+    background: #202124;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 750;
+}
+
+.sign-in-card button:hover {
+    background: #383838;
+}
+
+.app-loading {
+    color: white;
+}
