@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   onAuthStateChanged,
   signOut,
@@ -28,15 +32,34 @@ import {
 
 import "./App.css";
 
+const NOTES_SAVE_DELAY = 700;
+
 function App() {
-  const [events, setEvents] = useState(initialEvents);
-  const [favoriteDrivers, setFavoriteDrivers] = useState([]);
+  const [events, setEvents] =
+    useState(initialEvents);
+
+  const [
+    favoriteDrivers,
+    setFavoriteDrivers,
+  ] = useState([]);
+
   const [notes, setNotes] = useState("");
-  const [checklist, setChecklist] = useState([]);
+  const [notesSaveStatus, setNotesSaveStatus] =
+    useState("saved");
+
+  const [checklist, setChecklist] =
+    useState([]);
 
   const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [scheduleLoading, setScheduleLoading] = useState(true);
+  const [authLoading, setAuthLoading] =
+    useState(true);
+  const [
+    scheduleLoading,
+    setScheduleLoading,
+  ] = useState(true);
+
+  const notesSaveTimerRef = useRef(null);
+  const latestNotesRef = useRef("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
@@ -58,83 +81,119 @@ function App() {
 
     setScheduleLoading(true);
 
-    const unsubscribe = subscribeToSharedSchedule(
-      async (sharedSchedule) => {
-        if (!sharedSchedule) {
-          const initiallySelectedEventIds = initialEvents
-            .filter(
-              (event) =>
-                event.required || event.selected,
-            )
-            .map((event) => event.id);
+    const unsubscribe =
+      subscribeToSharedSchedule(
+        async (sharedSchedule) => {
+          if (!sharedSchedule) {
+            const initiallySelectedEventIds =
+              initialEvents
+                .filter(
+                  (event) =>
+                    event.required ||
+                    event.selected,
+                )
+                .map((event) => event.id);
 
-          try {
-            await saveSelectedEventIds(
-              initiallySelectedEventIds,
-            );
+            try {
+              await saveSelectedEventIds(
+                initiallySelectedEventIds,
+              );
 
-            await saveFavoriteDrivers([]);
-            await saveNotes("");
-            await saveChecklist([]);
-          } catch (error) {
-            console.error(
-              "Could not create the shared schedule:",
-              error,
-            );
+              await saveFavoriteDrivers([]);
+              await saveNotes("");
+              await saveChecklist([]);
+            } catch (error) {
+              console.error(
+                "Could not create the shared schedule:",
+                error,
+              );
 
-            setScheduleLoading(false);
+              setScheduleLoading(false);
+            }
+
+            return;
           }
 
-          return;
-        }
+          const selectedEventIds = new Set(
+            sharedSchedule.selectedEventIds ??
+            [],
+          );
 
-        const selectedEventIds = new Set(
-          sharedSchedule.selectedEventIds ?? [],
-        );
+          const updatedEvents =
+            initialEvents.map((event) => ({
+              ...event,
+              selected:
+                event.required ||
+                selectedEventIds.has(
+                  event.id,
+                ),
+            }));
 
-        const updatedEvents = initialEvents.map(
-          (event) => ({
-            ...event,
-            selected:
-              event.required ||
-              selectedEventIds.has(event.id),
-          }),
-        );
+          setEvents(updatedEvents);
 
-        setEvents(updatedEvents);
+          setFavoriteDrivers(
+            Array.isArray(
+              sharedSchedule.favoriteDrivers,
+            )
+              ? sharedSchedule.favoriteDrivers.slice(
+                0,
+                3,
+              )
+              : [],
+          );
 
-        setFavoriteDrivers(
-          Array.isArray(sharedSchedule.favoriteDrivers)
-            ? sharedSchedule.favoriteDrivers.slice(0, 3)
-            : [],
-        );
+          const sharedNotes =
+            typeof sharedSchedule.notes ===
+              "string"
+              ? sharedSchedule.notes
+              : "";
 
-        setNotes(
-          typeof sharedSchedule.notes === "string"
-            ? sharedSchedule.notes
-            : "",
-        );
+          /*
+           * Do not overwrite text while this device
+           * has a pending local save.
+           */
+          if (!notesSaveTimerRef.current) {
+            setNotes(sharedNotes);
+            latestNotesRef.current =
+              sharedNotes;
+            setNotesSaveStatus("saved");
+          }
 
-        setChecklist(
-          Array.isArray(sharedSchedule.checklist)
-            ? sharedSchedule.checklist
-            : [],
-        );
+          setChecklist(
+            Array.isArray(
+              sharedSchedule.checklist,
+            )
+              ? sharedSchedule.checklist
+              : [],
+          );
 
-        setScheduleLoading(false);
-      },
-      (error) => {
-        console.error(
-          "Could not load the shared schedule:",
-          error,
-        );
+          setScheduleLoading(false);
+        },
+        (error) => {
+          console.error(
+            "Could not load the shared schedule:",
+            error,
+          );
 
-        setScheduleLoading(false);
-      },
-    );
+          setScheduleLoading(false);
+        },
+      );
 
     return unsubscribe;
   }, [user]);
+
+  /*
+   * Clear any pending note timer if App unmounts.
+   */
+  useEffect(() => {
+    return () => {
+      if (notesSaveTimerRef.current) {
+        window.clearTimeout(
+          notesSaveTimerRef.current,
+        );
+      }
+    };
+  }, []);
 
   async function updateEventSelection(
     eventId,
@@ -157,17 +216,20 @@ function App() {
 
     const previousEvents = events;
 
-    const updatedEvents = events.map((event) => {
-      if (event.id !== eventId) {
-        return event;
-      }
+    const updatedEvents = events.map(
+      (event) => {
+        if (event.id !== eventId) {
+          return event;
+        }
 
-      return {
-        ...event,
-        selected:
-          event.required || shouldBeSelected,
-      };
-    });
+        return {
+          ...event,
+          selected:
+            event.required ||
+            shouldBeSelected,
+        };
+      },
+    );
 
     setEvents(updatedEvents);
 
@@ -176,7 +238,9 @@ function App() {
       .map((event) => event.id);
 
     try {
-      await saveSelectedEventIds(selectedEventIds);
+      await saveSelectedEventIds(
+        selectedEventIds,
+      );
     } catch (error) {
       console.error(
         "Could not save the shared schedule:",
@@ -201,19 +265,24 @@ function App() {
     const limitedFavorites =
       updatedFavorites.slice(0, 3);
 
-    const previousFavorites = favoriteDrivers;
+    const previousFavorites =
+      favoriteDrivers;
 
     setFavoriteDrivers(limitedFavorites);
 
     try {
-      await saveFavoriteDrivers(limitedFavorites);
+      await saveFavoriteDrivers(
+        limitedFavorites,
+      );
     } catch (error) {
       console.error(
         "Could not save favorite drivers:",
         error,
       );
 
-      setFavoriteDrivers(previousFavorites);
+      setFavoriteDrivers(
+        previousFavorites,
+      );
 
       window.alert(
         "Favorite drivers could not be updated. Please try again.",
@@ -221,6 +290,11 @@ function App() {
     }
   }
 
+  /*
+   * Update the text immediately, but wait until
+   * typing pauses for 700 ms before writing to
+   * Firestore.
+   */
   async function updateNotes(updatedNotes) {
     const previousNotes = notes;
 
@@ -236,9 +310,26 @@ function App() {
 
       setNotes(previousNotes);
 
-      window.alert(
-        "The weekend notes could not be saved. Please try again.",
+      throw error;
+    }
+  }
+
+  async function retryNotesSave() {
+    setNotesSaveStatus("saving");
+
+    try {
+      await saveNotes(
+        latestNotesRef.current,
       );
+
+      setNotesSaveStatus("saved");
+    } catch (error) {
+      console.error(
+        "Could not save weekend notes:",
+        error,
+      );
+
+      setNotesSaveStatus("error");
     }
   }
 
@@ -254,7 +345,9 @@ function App() {
     setChecklist(updatedChecklist);
 
     try {
-      await saveChecklist(updatedChecklist);
+      await saveChecklist(
+        updatedChecklist,
+      );
     } catch (error) {
       console.error(
         "Could not save the checklist:",
@@ -271,6 +364,21 @@ function App() {
 
   async function handleSignOut() {
     try {
+      /*
+       * Save pending notes before signing out.
+       */
+      if (notesSaveTimerRef.current) {
+        window.clearTimeout(
+          notesSaveTimerRef.current,
+        );
+
+        notesSaveTimerRef.current = null;
+
+        await saveNotes(
+          latestNotesRef.current,
+        );
+      }
+
       await signOut(auth);
     } catch (error) {
       console.error(
@@ -315,7 +423,9 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<HomePage events={events} />}
+            element={
+              <HomePage events={events} />
+            }
           />
 
           <Route
@@ -344,14 +454,20 @@ function App() {
 
           <Route
             path="/events"
-            element={<EventsPage events={events} />}
+            element={
+              <EventsPage
+                events={events}
+              />
+            }
           />
 
           <Route
             path="/spotters-guide"
             element={
               <SpottersGuidePage
-                favoriteDrivers={favoriteDrivers}
+                favoriteDrivers={
+                  favoriteDrivers
+                }
                 onUpdateFavoriteDrivers={
                   updateFavoriteDrivers
                 }
@@ -366,9 +482,7 @@ function App() {
                 notes={notes}
                 checklist={checklist}
                 onUpdateNotes={updateNotes}
-                onUpdateChecklist={
-                  updateChecklist
-                }
+                onUpdateChecklist={updateChecklist}
               />
             }
           />

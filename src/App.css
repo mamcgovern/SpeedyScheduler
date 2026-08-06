@@ -1890,3 +1890,69 @@ select {
         grid-template-columns: 1fr;
     }
 }
+
+.notes-save-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.notes-save-status--saved {
+  color: #166534;
+}
+
+.notes-save-status--unsaved {
+  color: #92400e;
+}
+
+.notes-save-status--saving {
+  color: #6b7280;
+}
+
+.notes-save-status--error {
+  color: #991b1b;
+}
+
+.notes-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.notes-card__save-button,
+.notes-card__cancel-button {
+  padding: 10px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.notes-card__save-button {
+  color: white;
+  background: #202124;
+  border: 1px solid #202124;
+}
+
+.notes-card__save-button:hover:not(:disabled) {
+  background: #3b3b3b;
+}
+
+.notes-card__save-button:disabled {
+  color: #9ca3af;
+  background: #e5e7eb;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.notes-card__cancel-button {
+  color: #4b5563;
+  background: white;
+  border: 1px solid #d1d5db;
+}
+
+.notes-card__cancel-button:hover:not(:disabled) {
+  background: #f3f4f6;
+}
