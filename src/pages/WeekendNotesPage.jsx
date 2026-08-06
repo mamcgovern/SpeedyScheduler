@@ -5,132 +5,141 @@ import {
 } from "react";
 
 function WeekendNotesPage({
+  weekend,
   notes,
   checklist,
   onUpdateNotes,
   onUpdateChecklist,
 }) {
-  const [notesDraft, setNotesDraft] =
-    useState(notes);
+  const [
+    notesDraft,
+    setNotesDraft,
+  ] = useState(notes);
 
-  const [notesSaveStatus, setNotesSaveStatus] =
-    useState("saved");
+  const [
+    notesStatus,
+    setNotesStatus,
+  ] = useState("saved");
 
-  const [newItemText, setNewItemText] =
-    useState("");
+  const [
+    newItemText,
+    setNewItemText,
+  ] = useState("");
 
   useEffect(() => {
-    if (notesSaveStatus !== "saving") {
+    if (
+      notesStatus !==
+      "unsaved"
+    ) {
       setNotesDraft(notes);
     }
-  }, [notes, notesSaveStatus]);
+  }, [
+    notes,
+    notesStatus,
+  ]);
 
-  const completedCount = useMemo(() => {
-    return checklist.filter(
-      (item) => item.completed,
-    ).length;
-  }, [checklist]);
-
-  const notesHaveChanges =
-    notesDraft !== notes;
-
-  function handleNotesChange(event) {
-    setNotesDraft(event.target.value);
-    setNotesSaveStatus("unsaved");
-  }
+  const completedCount =
+    useMemo(
+      () =>
+        checklist.filter(
+          (item) =>
+            item.completed,
+        ).length,
+      [checklist],
+    );
 
   async function saveNotesDraft() {
-    setNotesSaveStatus("saving");
+    setNotesStatus(
+      "saving",
+    );
 
     try {
-      await onUpdateNotes(notesDraft);
-      setNotesSaveStatus("saved");
+      await onUpdateNotes(
+        notesDraft,
+      );
+
+      setNotesStatus(
+        "saved",
+      );
     } catch (error) {
       console.error(
-        "Could not save notes:",
         error,
       );
 
-      setNotesSaveStatus("error");
+      setNotesStatus(
+        "error",
+      );
     }
   }
 
-  function resetNotesDraft() {
-    setNotesDraft(notes);
-    setNotesSaveStatus("saved");
-  }
-
-  function addChecklistItem(event) {
+  function addChecklistItem(
+    event,
+  ) {
     event.preventDefault();
 
-    const trimmedText =
+    const text =
       newItemText.trim();
 
-    if (!trimmedText) {
+    if (!text) {
       return;
     }
 
-    const newItem = {
-      id: crypto.randomUUID(),
-      text: trimmedText,
-      completed: false,
-    };
-
     onUpdateChecklist([
       ...checklist,
-      newItem,
+      {
+        id:
+          crypto.randomUUID(),
+        text,
+        completed: false,
+      },
     ]);
 
     setNewItemText("");
   }
 
-  function toggleChecklistItem(itemId) {
-    const updatedChecklist =
-      checklist.map((item) => {
-        if (item.id !== itemId) {
-          return item;
-        }
-
-        return {
-          ...item,
-          completed: !item.completed,
-        };
-      });
-
-    onUpdateChecklist(updatedChecklist);
+  function toggleItem(
+    itemId,
+  ) {
+    onUpdateChecklist(
+      checklist.map(
+        (item) =>
+          item.id === itemId
+            ? {
+                ...item,
+                completed:
+                  !item.completed,
+              }
+            : item,
+      ),
+    );
   }
 
-  function deleteChecklistItem(itemId) {
-    const updatedChecklist =
+  function deleteItem(
+    itemId,
+  ) {
+    onUpdateChecklist(
       checklist.filter(
-        (item) => item.id !== itemId,
-      );
-
-    onUpdateChecklist(updatedChecklist);
-  }
-
-  function clearCompletedItems() {
-    const updatedChecklist =
-      checklist.filter(
-        (item) => !item.completed,
-      );
-
-    onUpdateChecklist(updatedChecklist);
+        (item) =>
+          item.id !== itemId,
+      ),
+    );
   }
 
   return (
     <div className="weekend-notes-page">
       <header className="page-heading">
         <p className="page-heading__eyebrow">
-          Shared race weekend planning
+          {weekend?.title}
         </p>
 
-        <h1>Weekend Notes</h1>
+        <h1>
+          Weekend Notes
+        </h1>
 
         <p>
-          Keep shared notes and a checklist
-          for everything you and Nick need
-          during race weekend.
+          Keep shared notes and a
+          checklist for this
+          weekend.
         </p>
       </header>
 
@@ -142,62 +151,75 @@ function WeekendNotesPage({
                 Shared notes
               </p>
 
-              <h2>General Notes</h2>
+              <h2>
+                General Notes
+              </h2>
             </div>
 
-            <span
-              className={`notes-save-status notes-save-status--${notesSaveStatus}`}
-            >
-              {notesSaveStatus === "saving" &&
-                "Saving..."}
-
-              {notesSaveStatus === "saved" &&
+            <span className={`notes-save-status notes-save-status--${notesStatus}`}>
+              {notesStatus ===
+                "saved" &&
                 "✓ Saved"}
 
-              {notesSaveStatus === "unsaved" &&
+              {notesStatus ===
+                "unsaved" &&
                 "Unsaved changes"}
 
-              {notesSaveStatus === "error" &&
+              {notesStatus ===
+                "saving" &&
+                "Saving..."}
+
+              {notesStatus ===
+                "error" &&
                 "Could not save"}
             </span>
           </div>
 
-          <label className="notes-card__label">
-            <span className="sr-only">
-              Weekend notes
-            </span>
+          <textarea
+            value={notesDraft}
+            onChange={(event) => {
+              setNotesDraft(
+                event.target.value,
+              );
 
-            <textarea
-              value={notesDraft}
-              onChange={handleNotesChange}
-              placeholder="Add parking details, meetup plans, reminders, or anything else you both need to remember."
-              rows="12"
-            />
-          </label>
+              setNotesStatus(
+                "unsaved",
+              );
+            }}
+            rows="12"
+            placeholder="Add reminders, addresses, plans, or anything else your group should know."
+          />
 
           <div className="notes-card__actions">
             <button
               type="button"
               className="notes-card__save-button"
-              onClick={saveNotesDraft}
+              onClick={
+                saveNotesDraft
+              }
               disabled={
-                !notesHaveChanges ||
-                notesSaveStatus === "saving"
+                notesDraft === notes ||
+                notesStatus ===
+                  "saving"
               }
             >
-              {notesSaveStatus === "saving"
-                ? "Saving..."
-                : "Save Notes"}
+              Save Notes
             </button>
 
-            {notesHaveChanges && (
+            {notesDraft !==
+              notes && (
               <button
                 type="button"
                 className="notes-card__cancel-button"
-                onClick={resetNotesDraft}
-                disabled={
-                  notesSaveStatus === "saving"
-                }
+                onClick={() => {
+                  setNotesDraft(
+                    notes,
+                  );
+
+                  setNotesStatus(
+                    "saved",
+                  );
+                }}
               >
                 Discard Changes
               </button>
@@ -209,7 +231,7 @@ function WeekendNotesPage({
           <div className="checklist-card__heading">
             <div>
               <p className="home-card__eyebrow">
-                Race weekend prep
+                Shared checklist
               </p>
 
               <h2>Checklist</h2>
@@ -217,40 +239,39 @@ function WeekendNotesPage({
 
             <span>
               {completedCount} of{" "}
-              {checklist.length} complete
+              {checklist.length}{" "}
+              complete
             </span>
           </div>
 
           <form
             className="checklist-form"
-            onSubmit={addChecklistItem}
+            onSubmit={
+              addChecklistItem
+            }
           >
-            <label>
-              <span className="sr-only">
-                New checklist item
-              </span>
-
-              <input
-                type="text"
-                value={newItemText}
-                onChange={(event) =>
-                  setNewItemText(
-                    event.target.value,
-                  )
-                }
-                placeholder="Add an item"
-              />
-            </label>
+            <input
+              value={
+                newItemText
+              }
+              onChange={(event) =>
+                setNewItemText(
+                  event.target.value,
+                )
+              }
+              placeholder="Add an item"
+            />
 
             <button type="submit">
               Add Item
             </button>
           </form>
 
-          {checklist.length > 0 ? (
-            <>
-              <ul className="checklist-list">
-                {checklist.map((item) => (
+          {checklist.length >
+          0 ? (
+            <ul className="checklist-list">
+              {checklist.map(
+                (item) => (
                   <li
                     key={item.id}
                     className={
@@ -266,7 +287,7 @@ function WeekendNotesPage({
                           item.completed
                         }
                         onChange={() =>
-                          toggleChecklistItem(
+                          toggleItem(
                             item.id,
                           )
                         }
@@ -281,43 +302,28 @@ function WeekendNotesPage({
                       type="button"
                       className="checklist-item__delete"
                       onClick={() =>
-                        deleteChecklistItem(
+                        deleteItem(
                           item.id,
                         )
                       }
-                      aria-label={`Delete ${item.text}`}
                     >
                       ×
                     </button>
                   </li>
-                ))}
-              </ul>
-
-              {completedCount > 0 && (
-                <button
-                  type="button"
-                  className="checklist-clear-button"
-                  onClick={
-                    clearCompletedItems
-                  }
-                >
-                  Clear completed
-                </button>
+                ),
               )}
-            </>
+            </ul>
           ) : (
             <div className="checklist-empty">
-              <span aria-hidden="true">
-                ✅
-              </span>
-
               <h3>
-                Nothing on the list yet
+                Nothing on the list
               </h3>
 
               <p>
-                Add anything you need to
-                pack, bring, buy, or remember.
+                Add anything your
+                group needs to
+                bring, buy, or
+                remember.
               </p>
             </div>
           )}

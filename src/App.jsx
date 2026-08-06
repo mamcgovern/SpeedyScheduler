@@ -1,13 +1,18 @@
 import {
   useEffect,
-  useRef,
+  useMemo,
   useState,
 } from "react";
+
 import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
-import { Route, Routes } from "react-router";
+
+import {
+  Route,
+  Routes,
+} from "react-router";
 
 import { auth } from "./firebase";
 import initialEvents from "./data/events.json";
@@ -17,192 +22,302 @@ import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import SchedulerPage from "./pages/SchedulerPage";
 import MySchedulePage from "./pages/MySchedulePage";
-import EventsPage from "./pages/EventsPage";
-import SpottersGuidePage from "./pages/SpottersGuidePage";
-import SignInPage from "./pages/SignInPage";
+import AllEventsPage from "./pages/AllEventsPage";
 import WeekendNotesPage from "./pages/WeekendNotesPage";
+import ManageWeekendsPage from "./pages/ManageWeekendsPage";
 import InstallPage from "./pages/InstallPage";
+import SignInPage from "./pages/SignInPage";
 
 import {
-  saveChecklist,
-  saveFavoriteDrivers,
-  saveNotes,
-  saveSelectedEventIds,
-  subscribeToSharedSchedule,
-} from "./services/sharedSchedule";
+  createWeekendWithId,
+  subscribeToWeekend,
+  subscribeToWeekends,
+  updateWeekend,
+} from "./services/weekends";
+
+import {
+  getSavedWeekendId,
+  saveWeekendId,
+} from "./utils/weekendStorage";
 
 import "./styles/index.css";
 
-const NOTES_SAVE_DELAY = 700;
+const IOWA_WEEKEND_ID =
+  "iowa-speedway-2026";
+
+const INITIAL_IOWA_WEEKEND = {
+  title: "Iowa Speedway Weekend",
+  subtitle: "NASCAR Race Weekend",
+
+  locationName:
+    "Iowa Speedway",
+
+  locationAddress:
+    "Newton, Iowa",
+
+  startDate:
+    "2026-08-06",
+
+  endDate:
+    "2026-08-09",
+
+  latitude: 41.6746,
+  longitude: -93.013,
+
+  events: initialEvents.map(
+    (event) => {
+      const {
+        selected,
+        ...eventData
+      } = event;
+
+      return eventData;
+    },
+  ),
+
+  selectedEventIds:
+    initialEvents
+      .filter(
+        (event) =>
+          event.required ||
+          event.selected,
+      )
+      .map((event) => event.id),
+
+  notes: "",
+  checklist: [],
+};
 
 function App() {
-  const [events, setEvents] =
-    useState(initialEvents);
+  const [user, setUser] =
+    useState(null);
 
   const [
-    favoriteDrivers,
-    setFavoriteDrivers,
-  ] = useState([]);
-
-  const [notes, setNotes] = useState("");
-  const [notesSaveStatus, setNotesSaveStatus] =
-    useState("saved");
-
-  const [checklist, setChecklist] =
-    useState([]);
-
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] =
-    useState(true);
-  const [
-    scheduleLoading,
-    setScheduleLoading,
+    authLoading,
+    setAuthLoading,
   ] = useState(true);
 
-  const notesSaveTimerRef = useRef(null);
-  const latestNotesRef = useRef("");
+  const [
+    weekends,
+    setWeekends,
+  ] = useState([]);
+
+  const [
+    weekendsLoading,
+    setWeekendsLoading,
+  ] = useState(true);
+
+  const [
+    activeWeekendId,
+    setActiveWeekendId,
+  ] = useState(
+    getSavedWeekendId,
+  );
+
+  const [
+    activeWeekend,
+    setActiveWeekend,
+  ] = useState(null);
+
+  const [
+    weekendLoading,
+    setWeekendLoading,
+  ] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-        setAuthLoading(false);
-      },
-    );
+    const unsubscribe =
+      onAuthStateChanged(
+        auth,
+        (currentUser) => {
+          setUser(currentUser);
+          setAuthLoading(false);
+        },
+      );
 
     return unsubscribe;
   }, []);
 
   useEffect(() => {
     if (!user) {
-      setScheduleLoading(false);
+      setWeekends([]);
+      setWeekendsLoading(false);
       return undefined;
     }
 
-    setScheduleLoading(true);
+    setWeekendsLoading(true);
 
     const unsubscribe =
-      subscribeToSharedSchedule(
-        async (sharedSchedule) => {
-          if (!sharedSchedule) {
-            const initiallySelectedEventIds =
-              initialEvents
-                .filter(
-                  (event) =>
-                    event.required ||
-                    event.selected,
-                )
-                .map((event) => event.id);
-
+      subscribeToWeekends(
+        async (
+          loadedWeekends,
+        ) => {
+          if (
+            loadedWeekends.length === 0
+          ) {
             try {
-              await saveSelectedEventIds(
-                initiallySelectedEventIds,
+              await createWeekendWithId(
+                IOWA_WEEKEND_ID,
+                INITIAL_IOWA_WEEKEND,
               );
-
-              await saveFavoriteDrivers([]);
-              await saveNotes("");
-              await saveChecklist([]);
             } catch (error) {
               console.error(
-                "Could not create the shared schedule:",
+                "Could not create the initial weekend:",
                 error,
               );
 
-              setScheduleLoading(false);
+              setWeekendsLoading(
+                false,
+              );
             }
 
             return;
           }
 
-          const selectedEventIds = new Set(
-            sharedSchedule.selectedEventIds ??
-            [],
+          setWeekends(
+            loadedWeekends,
           );
 
-          const updatedEvents =
-            initialEvents.map((event) => ({
-              ...event,
-              selected:
-                event.required ||
-                selectedEventIds.has(
-                  event.id,
-                ),
-            }));
+          setWeekendsLoading(false);
 
-          setEvents(updatedEvents);
+          const savedWeekendId =
+            getSavedWeekendId();
 
-          setFavoriteDrivers(
-            Array.isArray(
-              sharedSchedule.favoriteDrivers,
-            )
-              ? sharedSchedule.favoriteDrivers.slice(
-                0,
-                3,
-              )
-              : [],
-          );
+          const savedWeekendExists =
+            loadedWeekends.some(
+              (weekend) =>
+                weekend.id ===
+                savedWeekendId,
+            );
 
-          const sharedNotes =
-            typeof sharedSchedule.notes ===
-              "string"
-              ? sharedSchedule.notes
-              : "";
+          if (
+            savedWeekendExists
+          ) {
+            setActiveWeekendId(
+              savedWeekendId,
+            );
+          } else {
+            const firstWeekendId =
+              loadedWeekends[0].id;
 
-          /*
-           * Do not overwrite text while this device
-           * has a pending local save.
-           */
-          if (!notesSaveTimerRef.current) {
-            setNotes(sharedNotes);
-            latestNotesRef.current =
-              sharedNotes;
-            setNotesSaveStatus("saved");
+            setActiveWeekendId(
+              firstWeekendId,
+            );
+
+            saveWeekendId(
+              firstWeekendId,
+            );
           }
-
-          setChecklist(
-            Array.isArray(
-              sharedSchedule.checklist,
-            )
-              ? sharedSchedule.checklist
-              : [],
-          );
-
-          setScheduleLoading(false);
         },
         (error) => {
           console.error(
-            "Could not load the shared schedule:",
+            "Could not load weekends:",
             error,
           );
 
-          setScheduleLoading(false);
+          setWeekendsLoading(false);
         },
       );
 
     return unsubscribe;
   }, [user]);
 
-  /*
-   * Clear any pending note timer if App unmounts.
-   */
   useEffect(() => {
-    return () => {
-      if (notesSaveTimerRef.current) {
-        window.clearTimeout(
-          notesSaveTimerRef.current,
-        );
-      }
-    };
-  }, []);
+    if (
+      !user ||
+      !activeWeekendId
+    ) {
+      setActiveWeekend(null);
+      return undefined;
+    }
+
+    setWeekendLoading(true);
+
+    const unsubscribe =
+      subscribeToWeekend(
+        activeWeekendId,
+        (weekend) => {
+          setActiveWeekend(
+            weekend,
+          );
+
+          setWeekendLoading(
+            false,
+          );
+        },
+        (error) => {
+          console.error(
+            "Could not load the selected weekend:",
+            error,
+          );
+
+          setWeekendLoading(
+            false,
+          );
+        },
+      );
+
+    return unsubscribe;
+  }, [
+    user,
+    activeWeekendId,
+  ]);
+
+  useEffect(() => {
+    document.title =
+      activeWeekend?.title
+        ? `${activeWeekend.title} | Speedy Scheduler`
+        : "Speedy Scheduler";
+  }, [activeWeekend]);
+
+  const events = useMemo(() => {
+    if (!activeWeekend) {
+      return [];
+    }
+
+    const selectedIds =
+      new Set(
+        activeWeekend
+          .selectedEventIds ?? [],
+      );
+
+    return (
+      activeWeekend.events ?? []
+    ).map((event) => ({
+      ...event,
+
+      selected:
+        event.required ||
+        selectedIds.has(
+          event.id,
+        ),
+    }));
+  }, [activeWeekend]);
+
+  function selectWeekend(
+    weekendId,
+  ) {
+    setActiveWeekendId(
+      weekendId,
+    );
+
+    saveWeekendId(
+      weekendId,
+    );
+  }
 
   async function updateEventSelection(
     eventId,
     shouldBeSelected,
   ) {
-    const eventToUpdate = events.find(
-      (event) => event.id === eventId,
-    );
+    if (!activeWeekend) {
+      return;
+    }
+
+    const eventToUpdate =
+      events.find(
+        (event) =>
+          event.id === eventId,
+      );
 
     if (!eventToUpdate) {
       return;
@@ -215,171 +330,86 @@ function App() {
       return;
     }
 
-    const previousEvents = events;
+    const selectedIds =
+      new Set(
+        activeWeekend
+          .selectedEventIds ?? [],
+      );
 
-    const updatedEvents = events.map(
-      (event) => {
-        if (event.id !== eventId) {
-          return event;
-        }
+    if (shouldBeSelected) {
+      selectedIds.add(
+        eventId,
+      );
+    } else {
+      selectedIds.delete(
+        eventId,
+      );
+    }
 
-        return {
-          ...event,
-          selected:
-            event.required ||
-            shouldBeSelected,
-        };
-      },
-    );
-
-    setEvents(updatedEvents);
-
-    const selectedEventIds = updatedEvents
-      .filter((event) => event.selected)
-      .map((event) => event.id);
+    for (
+      const event
+      of activeWeekend.events ?? []
+    ) {
+      if (event.required) {
+        selectedIds.add(
+          event.id,
+        );
+      }
+    }
 
     try {
-      await saveSelectedEventIds(
-        selectedEventIds,
+      await updateWeekend(
+        activeWeekend.id,
+        {
+          selectedEventIds:
+            [...selectedIds],
+        },
       );
     } catch (error) {
       console.error(
-        "Could not save the shared schedule:",
+        "Could not update the schedule:",
         error,
       );
 
-      setEvents(previousEvents);
-
       window.alert(
-        "The shared schedule could not be updated. Please try again.",
+        "The schedule could not be updated.",
       );
     }
   }
 
-  async function updateFavoriteDrivers(
-    updatedFavorites,
+  async function updateNotes(
+    updatedNotes,
   ) {
-    if (!Array.isArray(updatedFavorites)) {
+    if (!activeWeekend) {
       return;
     }
 
-    const limitedFavorites =
-      updatedFavorites.slice(0, 3);
-
-    const previousFavorites =
-      favoriteDrivers;
-
-    setFavoriteDrivers(limitedFavorites);
-
-    try {
-      await saveFavoriteDrivers(
-        limitedFavorites,
-      );
-    } catch (error) {
-      console.error(
-        "Could not save favorite drivers:",
-        error,
-      );
-
-      setFavoriteDrivers(
-        previousFavorites,
-      );
-
-      window.alert(
-        "Favorite drivers could not be updated. Please try again.",
-      );
-    }
-  }
-
-  /*
-   * Update the text immediately, but wait until
-   * typing pauses for 700 ms before writing to
-   * Firestore.
-   */
-  async function updateNotes(updatedNotes) {
-    const previousNotes = notes;
-
-    setNotes(updatedNotes);
-
-    try {
-      await saveNotes(updatedNotes);
-    } catch (error) {
-      console.error(
-        "Could not save weekend notes:",
-        error,
-      );
-
-      setNotes(previousNotes);
-
-      throw error;
-    }
-  }
-
-  async function retryNotesSave() {
-    setNotesSaveStatus("saving");
-
-    try {
-      await saveNotes(
-        latestNotesRef.current,
-      );
-
-      setNotesSaveStatus("saved");
-    } catch (error) {
-      console.error(
-        "Could not save weekend notes:",
-        error,
-      );
-
-      setNotesSaveStatus("error");
-    }
+    await updateWeekend(
+      activeWeekend.id,
+      {
+        notes: updatedNotes,
+      },
+    );
   }
 
   async function updateChecklist(
     updatedChecklist,
   ) {
-    if (!Array.isArray(updatedChecklist)) {
+    if (!activeWeekend) {
       return;
     }
 
-    const previousChecklist = checklist;
-
-    setChecklist(updatedChecklist);
-
-    try {
-      await saveChecklist(
-        updatedChecklist,
-      );
-    } catch (error) {
-      console.error(
-        "Could not save the checklist:",
-        error,
-      );
-
-      setChecklist(previousChecklist);
-
-      window.alert(
-        "The checklist could not be saved. Please try again.",
-      );
-    }
+    await updateWeekend(
+      activeWeekend.id,
+      {
+        checklist:
+          updatedChecklist,
+      },
+    );
   }
 
   async function handleSignOut() {
     try {
-      /*
-       * Save pending notes before signing out.
-       */
-      if (notesSaveTimerRef.current) {
-        window.clearTimeout(
-          notesSaveTimerRef.current,
-        );
-
-        notesSaveTimerRef.current = null;
-
-        await saveNotes(
-          latestNotesRef.current,
-        );
-      }
-
       await signOut(auth);
     } catch (error) {
       console.error(
@@ -388,7 +418,7 @@ function App() {
       );
 
       window.alert(
-        "You could not be signed out. Please try again.",
+        "You could not be signed out.",
       );
     }
   }
@@ -396,7 +426,9 @@ function App() {
   if (authLoading) {
     return (
       <main className="app-loading">
-        <p>Loading Speedy Scheduler...</p>
+        <p>
+          Loading Speedy Scheduler...
+        </p>
       </main>
     );
   }
@@ -405,10 +437,15 @@ function App() {
     return <SignInPage />;
   }
 
-  if (scheduleLoading) {
+  if (
+    weekendsLoading ||
+    weekendLoading
+  ) {
     return (
       <main className="app-loading">
-        <p>Loading shared schedule...</p>
+        <p>
+          Loading weekend...
+        </p>
       </main>
     );
   }
@@ -417,7 +454,19 @@ function App() {
     <>
       <Navbar
         user={user}
-        onSignOut={handleSignOut}
+        weekends={weekends}
+        activeWeekendId={
+          activeWeekendId
+        }
+        activeWeekend={
+          activeWeekend
+        }
+        onSelectWeekend={
+          selectWeekend
+        }
+        onSignOut={
+          handleSignOut
+        }
       />
 
       <main className="app">
@@ -425,7 +474,12 @@ function App() {
           <Route
             path="/"
             element={
-              <HomePage events={events} />
+              <HomePage
+                weekend={
+                  activeWeekend
+                }
+                events={events}
+              />
             }
           />
 
@@ -433,6 +487,9 @@ function App() {
             path="/scheduler"
             element={
               <SchedulerPage
+                weekend={
+                  activeWeekend
+                }
                 events={events}
                 onUpdateEventSelection={
                   updateEventSelection
@@ -445,6 +502,9 @@ function App() {
             path="/my-schedule"
             element={
               <MySchedulePage
+                weekend={
+                  activeWeekend
+                }
                 events={events}
                 onUpdateEventSelection={
                   updateEventSelection
@@ -456,22 +516,11 @@ function App() {
           <Route
             path="/events"
             element={
-              <EventsPage
+              <AllEventsPage
+                weekend={
+                  activeWeekend
+                }
                 events={events}
-              />
-            }
-          />
-
-          <Route
-            path="/spotters-guide"
-            element={
-              <SpottersGuidePage
-                favoriteDrivers={
-                  favoriteDrivers
-                }
-                onUpdateFavoriteDrivers={
-                  updateFavoriteDrivers
-                }
               />
             }
           />
@@ -480,17 +529,49 @@ function App() {
             path="/weekend-notes"
             element={
               <WeekendNotesPage
-                notes={notes}
-                checklist={checklist}
-                onUpdateNotes={updateNotes}
-                onUpdateChecklist={updateChecklist}
+                weekend={
+                  activeWeekend
+                }
+                notes={
+                  activeWeekend
+                    ?.notes ?? ""
+                }
+                checklist={
+                  activeWeekend
+                    ?.checklist ?? []
+                }
+                onUpdateNotes={
+                  updateNotes
+                }
+                onUpdateChecklist={
+                  updateChecklist
+                }
               />
             }
           />
-          
+
+          <Route
+            path="/manage-weekends"
+            element={
+              <ManageWeekendsPage
+                weekends={
+                  weekends
+                }
+                activeWeekendId={
+                  activeWeekendId
+                }
+                onSelectWeekend={
+                  selectWeekend
+                }
+              />
+            }
+          />
+
           <Route
             path="/install"
-            element={<InstallPage />}
+            element={
+              <InstallPage />
+            }
           />
         </Routes>
       </main>

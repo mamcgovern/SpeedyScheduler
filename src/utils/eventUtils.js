@@ -1,108 +1,161 @@
-const DAY_NAMES = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-export function parseEventDate(dateString) {
+export function parseEventDate(
+  dateString,
+) {
   if (!dateString) {
-    return null;
+    return new Date(NaN);
   }
 
-  const [year, month, day] = dateString.split("-").map(Number);
+  const [year, month, day] = dateString
+    .split("-")
+    .map(Number);
 
-  return new Date(year, month - 1, day);
+  return new Date(
+    year,
+    month - 1,
+    day,
+  );
 }
 
-export function parseTimeToMinutes(timeString) {
-  if (!timeString) {
-    return Number.POSITIVE_INFINITY;
-  }
-
-  const [time, period] = timeString.trim().split(" ");
-  const [rawHour, minute] = time.split(":").map(Number);
-
-  let hour = rawHour;
-
-  if (period === "AM" && hour === 12) {
-    hour = 0;
-  }
-
-  if (period === "PM" && hour !== 12) {
-    hour += 12;
-  }
-
-  return hour * 60 + minute;
-}
-
-export function sortEvents(events) {
-  return [...events].sort((firstEvent, secondEvent) => {
-    const firstDate = parseEventDate(firstEvent.day);
-    const secondDate = parseEventDate(secondEvent.day);
-
-    const dateDifference = firstDate - secondDate;
-
-    if (dateDifference !== 0) {
-      return dateDifference;
-    }
-
-    return (
-      parseTimeToMinutes(firstEvent.start) -
-      parseTimeToMinutes(secondEvent.start)
-    );
-  });
-}
-
-export function groupEventsByDay(events) {
-  const sortedEvents = sortEvents(events);
-
-  return sortedEvents.reduce((groups, event) => {
-    if (!groups[event.day]) {
-      groups[event.day] = [];
-    }
-
-    groups[event.day].push(event);
-
-    return groups;
-  }, {});
-}
-
-export function formatEventDate(dateString) {
+export function formatEventDate(
+  dateString,
+) {
   const date = parseEventDate(dateString);
 
-  if (!date || Number.isNaN(date.getTime())) {
-    return "Invalid date";
+  if (Number.isNaN(date.getTime())) {
+    return "Date unavailable";
   }
 
-  return date.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
+  return date.toLocaleDateString(
+    "en-US",
+    {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    },
+  );
 }
 
-export function formatTimeRange(start, end) {
+export function formatEventDateWithYear(
+  dateString,
+) {
+  const date = parseEventDate(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Date unavailable";
+  }
+
+  return date.toLocaleDateString(
+    "en-US",
+    {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    },
+  );
+}
+
+export function formatDayTab(
+  dateString,
+) {
+  const date = parseEventDate(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return dateString;
+  }
+
+  return date.toLocaleDateString(
+    "en-US",
+    {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    },
+  );
+}
+
+export function formatWeekendDateRange(
+  startDate,
+  endDate,
+) {
+  const start = parseEventDate(startDate);
+  const end = parseEventDate(endDate);
+
+  if (
+    Number.isNaN(start.getTime()) ||
+    Number.isNaN(end.getTime())
+  ) {
+    return "";
+  }
+
+  if (startDate === endDate) {
+    return start.toLocaleDateString(
+      "en-US",
+      {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      },
+    );
+  }
+
+  const sameYear =
+    start.getFullYear() ===
+    end.getFullYear();
+
+  const sameMonth =
+    sameYear &&
+    start.getMonth() === end.getMonth();
+
+  if (sameMonth) {
+    return `${start.toLocaleDateString(
+      "en-US",
+      {
+        month: "long",
+      },
+    )} ${start.getDate()}–${end.getDate()}, ${end.getFullYear()}`;
+  }
+
+  if (sameYear) {
+    return `${start.toLocaleDateString(
+      "en-US",
+      {
+        month: "short",
+        day: "numeric",
+      },
+    )} – ${end.toLocaleDateString(
+      "en-US",
+      {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      },
+    )}`;
+  }
+
+  return `${start.toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  )} – ${end.toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    },
+  )}`;
+}
+
+export function formatTimeRange(
+  start,
+  end,
+) {
   if (!start) {
-    return "Time not announced";
+    return "Time to be announced";
   }
 
   if (!end) {
@@ -112,32 +165,160 @@ export function formatTimeRange(start, end) {
   return `${start} – ${end}`;
 }
 
-export function doEventsOverlap(firstEvent, secondEvent) {
-  if (firstEvent.day !== secondEvent.day) {
+function parseTime(
+  dateString,
+  timeString,
+) {
+  if (!dateString || !timeString) {
+    return null;
+  }
+
+  const date = parseEventDate(dateString);
+
+  const match = timeString
+    .trim()
+    .match(
+      /^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i,
+    );
+
+  if (!match) {
+    return null;
+  }
+
+  let hour = Number(match[1]);
+  const minute = Number(
+    match[2] ?? 0,
+  );
+  const period =
+    match[3].toUpperCase();
+
+  if (
+    period === "AM" &&
+    hour === 12
+  ) {
+    hour = 0;
+  }
+
+  if (
+    period === "PM" &&
+    hour !== 12
+  ) {
+    hour += 12;
+  }
+
+  date.setHours(
+    hour,
+    minute,
+    0,
+    0,
+  );
+
+  return date;
+}
+
+export function getEventDateTime(
+  event,
+) {
+  return parseTime(
+    event?.day,
+    event?.start,
+  );
+}
+
+export function getEventEndDateTime(
+  event,
+) {
+  return parseTime(
+    event?.day,
+    event?.end,
+  );
+}
+
+export function getNearestEventDay(
+  events,
+  now = new Date(),
+) {
+  const days = [
+    ...new Set(
+      events
+        .map((event) => event.day)
+        .filter(Boolean),
+    ),
+  ].sort(
+    (firstDay, secondDay) =>
+      parseEventDate(firstDay) -
+      parseEventDate(secondDay),
+  );
+
+  if (days.length === 0) {
+    return null;
+  }
+
+  const today = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
+
+  const upcomingDay = days.find(
+    (day) =>
+      parseEventDate(day) >= today,
+  );
+
+  return (
+    upcomingDay ??
+    days[days.length - 1]
+  );
+}
+
+export function doEventsOverlap(
+  firstEvent,
+  secondEvent,
+) {
+  if (
+    firstEvent.day !==
+    secondEvent.day
+  ) {
     return false;
   }
 
-  // Flexible events may overlap other scheduled events.
-  if (firstEvent.allowsOverlap || secondEvent.allowsOverlap) {
+  if (
+    firstEvent.allowsOverlap ||
+    secondEvent.allowsOverlap
+  ) {
     return false;
   }
 
-  // Events without end times are informational milestones.
-  if (!firstEvent.end || !secondEvent.end) {
+  const firstStart =
+    getEventDateTime(firstEvent);
+
+  const firstEnd =
+    getEventEndDateTime(firstEvent);
+
+  const secondStart =
+    getEventDateTime(secondEvent);
+
+  const secondEnd =
+    getEventEndDateTime(secondEvent);
+
+  if (
+    !firstStart ||
+    !firstEnd ||
+    !secondStart ||
+    !secondEnd
+  ) {
     return false;
   }
 
-  const firstStart = parseTimeToMinutes(firstEvent.start);
-  const firstEnd = parseTimeToMinutes(firstEvent.end);
-  const secondStart = parseTimeToMinutes(secondEvent.start);
-  const secondEnd = parseTimeToMinutes(secondEvent.end);
-
-  return firstStart < secondEnd && secondStart < firstEnd;
+  return (
+    firstStart < secondEnd &&
+    secondStart < firstEnd
+  );
 }
 
 export function findEventConflicts(
   event,
-  events
+  events,
 ) {
   return events.filter(
     (otherEvent) =>
@@ -145,225 +326,89 @@ export function findEventConflicts(
       otherEvent.selected &&
       doEventsOverlap(
         event,
-        otherEvent
-      )
+        otherEvent,
+      ),
   );
-}
-
-export function getNearestEventDay(events) {
-  const uniqueDays = [...new Set(events.map((event) => event.day))]
-    .sort((firstDay, secondDay) => {
-      return parseEventDate(firstDay) - parseEventDate(secondDay);
-    });
-
-  if (uniqueDays.length === 0) {
-    return null;
-  }
-
-  const today = new Date();
-
-  // Remove the current time so we compare calendar dates only.
-  today.setHours(0, 0, 0, 0);
-
-  const upcomingDay = uniqueDays.find((day) => {
-    const eventDate = parseEventDate(day);
-    eventDate.setHours(0, 0, 0, 0);
-
-    return eventDate >= today;
-  });
-
-  // Use the nearest upcoming day. If all event days have passed,
-  // default to the final day.
-  return upcomingDay ?? uniqueDays[uniqueDays.length - 1];
-}
-
-export function formatDayTab(dateString) {
-  const date = parseEventDate(dateString);
-
-  if (!date || Number.isNaN(date.getTime())) {
-    return dateString;
-  }
-
-  return date.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-export function parseEventDateTime(event) {
-  if (!event?.day || !event?.start) {
-    return null;
-  }
-
-  const [year, month, day] = event.day
-    .split("-")
-    .map(Number);
-
-  const [time, period] = event.start
-    .trim()
-    .split(" ");
-
-  let [hour, minute] = time
-    .split(":")
-    .map(Number);
-
-  if (period === "AM" && hour === 12) {
-    hour = 0;
-  }
-
-  if (period === "PM" && hour !== 12) {
-    hour += 12;
-  }
-
-  return new Date(
-    year,
-    month - 1,
-    day,
-    hour,
-    minute,
-  );
-}
-
-
-export function formatEventDateWithYear(dateString) {
-  const date = parseEventDate(dateString);
-
-  if (!date || Number.isNaN(date.getTime())) {
-    return dateString;
-  }
-
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-export function getEventDateTime(event) {
-    if (!event?.day || !event?.start) {
-        return null;
-    }
-
-    const [year, month, day] = event.day
-        .split("-")
-        .map(Number);
-
-    const [time, period] = event.start
-        .trim()
-        .split(" ");
-
-    let [hour, minute] = time
-        .split(":")
-        .map(Number);
-
-    if (period === "AM" && hour === 12) {
-        hour = 0;
-    }
-
-    if (period === "PM" && hour !== 12) {
-        hour += 12;
-    }
-
-    return new Date(
-        year,
-        month - 1,
-        day,
-        hour,
-        minute
-    );
-}
-
-export function getEventEndDateTime(event) {
-    if (!event?.day || !event?.end) {
-        return null;
-    }
-
-    return getEventDateTime({
-        ...event,
-        start: event.end,
-    });
 }
 
 export function getNextScheduledEvent(
-    events,
-    now = new Date()
+  events,
+  now = new Date(),
 ) {
-    return (
-        events
-            .filter(
-                (event) =>
-                    event.selected &&
-                    event.start
-            )
-            .map((event) => ({
-                ...event,
-                dateTime:
-                    getEventDateTime(event),
-                endDateTime:
-                    getEventEndDateTime(event),
-            }))
-            .filter((event) => {
-                if (!event.dateTime) {
-                    return false;
-                }
+  const upcomingEvents = events
+    .filter(
+      (event) =>
+        event.selected &&
+        event.start,
+    )
+    .map((event) => ({
+      ...event,
+      dateTime:
+        getEventDateTime(event),
 
-                /*
-                 * If an event has an end time, keep showing it
-                 * until it ends. Otherwise, stop showing it
-                 * after its start time.
-                 */
-                if (event.endDateTime) {
-                    return event.endDateTime > now;
-                }
+      endDateTime:
+        getEventEndDateTime(event),
+    }))
+    .filter((event) => {
+      if (!event.dateTime) {
+        return false;
+      }
 
-                return event.dateTime >= now;
-            })
-            .sort(
-                (firstEvent, secondEvent) =>
-                    firstEvent.dateTime -
-                    secondEvent.dateTime
-            )[0] ?? null
+      if (event.endDateTime) {
+        return (
+          event.endDateTime > now
+        );
+      }
+
+      return event.dateTime >= now;
+    })
+    .sort(
+      (firstEvent, secondEvent) =>
+        firstEvent.dateTime -
+        secondEvent.dateTime,
     );
+
+  return upcomingEvents[0] ?? null;
 }
 
 export function getCountdownText(
-    targetDate,
-    now = new Date()
+  targetDate,
+  now = new Date(),
 ) {
-    if (!targetDate) {
-        return "";
-    }
+  if (!targetDate) {
+    return "";
+  }
 
-    const difference =
-        targetDate.getTime() - now.getTime();
+  const difference =
+    targetDate.getTime() -
+    now.getTime();
 
-    if (difference <= 0) {
-        return "Happening now";
-    }
+  if (difference <= 0) {
+    return "Happening now";
+  }
 
-    const totalMinutes = Math.ceil(
-        difference / 60000
-    );
+  const totalMinutes = Math.ceil(
+    difference / 60000,
+  );
 
-    const days = Math.floor(
-        totalMinutes / 1440
-    );
+  const days = Math.floor(
+    totalMinutes / 1440,
+  );
 
-    const hours = Math.floor(
-        (totalMinutes % 1440) / 60
-    );
+  const hours = Math.floor(
+    (totalMinutes % 1440) / 60,
+  );
 
-    const minutes = totalMinutes % 60;
+  const minutes =
+    totalMinutes % 60;
 
-    if (days > 0) {
-        return `${days}d ${hours}h ${minutes}m`;
-    }
+  if (days > 0) {
+    return `${days}d ${hours}h ${minutes}m`;
+  }
 
-    if (hours > 0) {
-        return `${hours}h ${minutes}m`;
-    }
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
 
-    return `${minutes}m`;
+  return `${minutes}m`;
 }
