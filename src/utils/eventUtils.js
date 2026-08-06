@@ -225,23 +225,6 @@ export function parseEventDateTime(event) {
   );
 }
 
-export function getNextScheduledEvent(events, now = new Date()) {
-  return events
-    .filter((event) => event.selected && event.start)
-    .map((event) => ({
-      ...event,
-      dateTime: parseEventDateTime(event),
-    }))
-    .filter(
-      (event) =>
-        event.dateTime &&
-        event.dateTime >= now,
-    )
-    .sort(
-      (firstEvent, secondEvent) =>
-        firstEvent.dateTime - secondEvent.dateTime,
-    )[0] ?? null;
-}
 
 export function formatEventDateWithYear(dateString) {
   const date = parseEventDate(dateString);
@@ -256,4 +239,131 @@ export function formatEventDateWithYear(dateString) {
     day: "numeric",
     year: "numeric",
   });
+}
+
+export function getEventDateTime(event) {
+    if (!event?.day || !event?.start) {
+        return null;
+    }
+
+    const [year, month, day] = event.day
+        .split("-")
+        .map(Number);
+
+    const [time, period] = event.start
+        .trim()
+        .split(" ");
+
+    let [hour, minute] = time
+        .split(":")
+        .map(Number);
+
+    if (period === "AM" && hour === 12) {
+        hour = 0;
+    }
+
+    if (period === "PM" && hour !== 12) {
+        hour += 12;
+    }
+
+    return new Date(
+        year,
+        month - 1,
+        day,
+        hour,
+        minute
+    );
+}
+
+export function getEventEndDateTime(event) {
+    if (!event?.day || !event?.end) {
+        return null;
+    }
+
+    return getEventDateTime({
+        ...event,
+        start: event.end,
+    });
+}
+
+export function getNextScheduledEvent(
+    events,
+    now = new Date()
+) {
+    return (
+        events
+            .filter(
+                (event) =>
+                    event.selected &&
+                    event.start
+            )
+            .map((event) => ({
+                ...event,
+                dateTime:
+                    getEventDateTime(event),
+                endDateTime:
+                    getEventEndDateTime(event),
+            }))
+            .filter((event) => {
+                if (!event.dateTime) {
+                    return false;
+                }
+
+                /*
+                 * If an event has an end time, keep showing it
+                 * until it ends. Otherwise, stop showing it
+                 * after its start time.
+                 */
+                if (event.endDateTime) {
+                    return event.endDateTime > now;
+                }
+
+                return event.dateTime >= now;
+            })
+            .sort(
+                (firstEvent, secondEvent) =>
+                    firstEvent.dateTime -
+                    secondEvent.dateTime
+            )[0] ?? null
+    );
+}
+
+export function getCountdownText(
+    targetDate,
+    now = new Date()
+) {
+    if (!targetDate) {
+        return "";
+    }
+
+    const difference =
+        targetDate.getTime() - now.getTime();
+
+    if (difference <= 0) {
+        return "Happening now";
+    }
+
+    const totalMinutes = Math.ceil(
+        difference / 60000
+    );
+
+    const days = Math.floor(
+        totalMinutes / 1440
+    );
+
+    const hours = Math.floor(
+        (totalMinutes % 1440) / 60
+    );
+
+    const minutes = totalMinutes % 60;
+
+    if (days > 0) {
+        return `${days}d ${hours}h ${minutes}m`;
+    }
+
+    if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+    }
+
+    return `${minutes}m`;
 }

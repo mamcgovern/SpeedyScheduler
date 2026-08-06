@@ -62,3 +62,29 @@ export async function saveFavoriteDrivers(
         }
     );
 }
+
+export async function saveNotes(notes) {
+  await setDoc(
+    scheduleReference,
+    {
+      notes,
+      updatedAt: serverTimestamp(),
+    },
+    {
+      merge: true,
+    },
+  );
+}
+
+export async function saveChecklist(checklist) {
+  await setDoc(
+    scheduleReference,
+    {
+      checklist,
+      updatedAt: serverTimestamp(),
+    },
+    {
+      merge: true,
+    },
+  );
+}

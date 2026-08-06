@@ -185,6 +185,22 @@ function Navbar() {
                                     </small>
                                 </span>
                             </NavLink>
+
+                            <NavLink
+                                to="/weekend-notes"
+                                className="navbar__dropdown-link"
+                                onClick={closeMenu}
+                            >
+                                <span>📝</span>
+
+                                <span>
+                                    <strong>Weekend Notes</strong>
+
+                                    <small>
+                                        Shared notes and checklist
+                                    </small>
+                                </span>
+                            </NavLink>
                         </nav>
                     )}
                 </div>
