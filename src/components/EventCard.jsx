@@ -1,17 +1,25 @@
 import { formatTimeRange } from "../utils/eventUtils";
 
-function EventCard({ event, onToggle }) {
+function EventCard({
+  event,
+  conflicts = [],
+  onToggle,
+}) {
   const isMilestone = !event.end;
+  const hasConflict =
+    !event.selected && conflicts.length > 0;
 
   const categoryClass = event.category
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-");
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
   const classNames = [
     "event-card",
     `event-card--${categoryClass}`,
     event.required ? "event-card--required" : "",
     event.selected ? "event-card--selected" : "",
+    hasConflict ? "event-card--conflict" : "",
     isMilestone ? "event-card--milestone" : "",
   ]
     .filter(Boolean)
@@ -24,13 +32,18 @@ function EventCard({ event, onToggle }) {
 
         {event.end && (
           <>
-            <span className="event-card__time-divider">to</span>
+            <span className="event-card__time-divider">
+              to
+            </span>
             <span>{event.end}</span>
           </>
         )}
       </div>
 
-      <div className="event-card__marker" aria-hidden="true">
+      <div
+        className="event-card__marker"
+        aria-hidden="true"
+      >
         <span />
       </div>
 
@@ -39,7 +52,9 @@ function EventCard({ event, onToggle }) {
           <h3>{event.title}</h3>
 
           {event.required && (
-            <span className="event-card__required-label">Required</span>
+            <span className="event-card__required-label">
+              Required
+            </span>
           )}
         </div>
 
@@ -48,19 +63,37 @@ function EventCard({ event, onToggle }) {
         </p>
 
         {event.location && (
-          <p className="event-card__location">📍 {event.location}</p>
+          <p className="event-card__location">
+            📍 {event.location}
+          </p>
+        )}
+
+        {hasConflict && (
+          <div className="event-card__conflict-message">
+            Conflicts with{" "}
+            {conflicts
+              .map((conflict) => conflict.title)
+              .join(", ")}
+          </div>
         )}
 
         <div className="event-card__footer">
-          <span className="event-card__category">{event.category}</span>
+          <span className="event-card__category">
+            {event.category}
+          </span>
 
           {!event.required && (
             <button
               type="button"
               className="event-card__select-button"
               onClick={onToggle}
+              disabled={hasConflict}
             >
-              {event.selected ? "Remove" : "Add to schedule"}
+              {event.selected
+                ? "Remove"
+                : hasConflict
+                  ? "Conflicts"
+                  : "Add to schedule"}
             </button>
           )}
         </div>

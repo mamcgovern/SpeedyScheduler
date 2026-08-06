@@ -111,3 +111,30 @@ export function formatTimeRange(start, end) {
 
   return `${start} – ${end}`;
 }
+
+export function doEventsOverlap(firstEvent, secondEvent) {
+  if (firstEvent.day !== secondEvent.day) {
+    return false;
+  }
+
+  // Milestones without an end time do not block the schedule.
+  if (!firstEvent.end || !secondEvent.end) {
+    return false;
+  }
+
+  const firstStart = parseTimeToMinutes(firstEvent.start);
+  const firstEnd = parseTimeToMinutes(firstEvent.end);
+  const secondStart = parseTimeToMinutes(secondEvent.start);
+  const secondEnd = parseTimeToMinutes(secondEvent.end);
+
+  return firstStart < secondEnd && secondStart < firstEnd;
+}
+
+export function findEventConflicts(event, events) {
+  return events.filter(
+    (otherEvent) =>
+      otherEvent.id !== event.id &&
+      otherEvent.selected &&
+      doEventsOverlap(event, otherEvent),
+  );
+}
