@@ -1,12 +1,17 @@
 import { formatTimeRange } from "../utils/eventUtils";
 
-function EventCard({ event }) {
+function EventCard({ event, onToggle }) {
   const isMilestone = !event.end;
+
+  const categoryClass = event.category
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
 
   const classNames = [
     "event-card",
-    `event-card--${event.category.toLowerCase().replaceAll(" ", "-")}`,
+    `event-card--${categoryClass}`,
     event.required ? "event-card--required" : "",
+    event.selected ? "event-card--selected" : "",
     isMilestone ? "event-card--milestone" : "",
   ]
     .filter(Boolean)
@@ -46,7 +51,19 @@ function EventCard({ event }) {
           <p className="event-card__location">📍 {event.location}</p>
         )}
 
-        <span className="event-card__category">{event.category}</span>
+        <div className="event-card__footer">
+          <span className="event-card__category">{event.category}</span>
+
+          {!event.required && (
+            <button
+              type="button"
+              className="event-card__select-button"
+              onClick={onToggle}
+            >
+              {event.selected ? "Remove" : "Add to schedule"}
+            </button>
+          )}
+        </div>
       </div>
     </article>
   );

@@ -1,9 +1,27 @@
-import events from "./data/events.json";
+import { useState } from "react";
+import initialEvents from "./data/events.json";
 import DaySchedule from "./components/DaySchedule";
 import { groupEventsByDay } from "./utils/eventUtils";
 import "./App.css";
 
 function App() {
+  const [events, setEvents] = useState(initialEvents);
+
+  function toggleEvent(eventId) {
+    setEvents((currentEvents) =>
+      currentEvents.map((event) => {
+        if (event.id !== eventId || event.required) {
+          return event;
+        }
+
+        return {
+          ...event,
+          selected: !event.selected,
+        };
+      }),
+    );
+  }
+
   const groupedEvents = groupEventsByDay(events);
 
   return (
@@ -24,7 +42,12 @@ function App() {
 
       <div className="schedule">
         {Object.entries(groupedEvents).map(([day, dayEvents]) => (
-          <DaySchedule key={day} day={day} events={dayEvents} />
+          <DaySchedule
+            key={day}
+            day={day}
+            events={dayEvents}
+            onToggleEvent={toggleEvent}
+          />
         ))}
       </div>
     </main>

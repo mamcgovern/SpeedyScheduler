@@ -327,3 +327,46 @@ select {
     margin-top: 8px;
   }
 }
+
+.event-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.event-card__category {
+  margin-top: 0;
+}
+
+.event-card__select-button {
+  padding: 8px 12px;
+  color: white;
+  background: #202124;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.event-card__select-button:hover {
+  background: #3b3b3b;
+}
+
+.event-card--selected .event-card__content {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.event-card--selected .event-card__select-button {
+  color: #166534;
+  background: #dcfce7;
+}
+
+@media (max-width: 700px) {
+  .event-card__footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
