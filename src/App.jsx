@@ -33,7 +33,12 @@ function App() {
 
           <Route
             path="/my-schedule"
-            element={<MySchedulePage events={events} />}
+            element={
+              <MySchedulePage
+                events={events}
+                setEvents={setEvents}
+              />
+            }
           />
 
           <Route
