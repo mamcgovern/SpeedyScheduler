@@ -1,0 +1,510 @@
+.live-race-page {
+  display: grid;
+  gap: 24px;
+}
+
+.live-race-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.live-race-refresh {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  color: white;
+  background: #202124;
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.live-race-refresh:hover:not(:disabled) {
+  background: #3b3b3b;
+}
+
+.live-race-refresh:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+/*
+ * Main race-status bar
+ */
+
+.live-race-status {
+  display: grid;
+  grid-template-columns:
+    minmax(190px, 1.3fr)
+    repeat(4, minmax(110px, 0.7fr));
+  overflow: hidden;
+  background: white;
+  border: 1px solid #dedede;
+  border-radius: 18px;
+  box-shadow:
+    0 12px 35px
+    rgb(0 0 0 / 6%);
+}
+
+.live-race-flag {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 20px;
+  color: white;
+  background: #202124;
+}
+
+.live-race-flag > span {
+  font-size: 2rem;
+}
+
+.live-race-flag div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.live-race-flag small,
+.live-race-status__stat span {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.live-race-flag small {
+  color: rgb(255 255 255 / 70%);
+}
+
+.live-race-flag strong {
+  font-size: 1.25rem;
+}
+
+.live-race-flag--green {
+  background: #166534;
+}
+
+.live-race-flag--yellow {
+  color: #422006;
+  background: #facc15;
+}
+
+.live-race-flag--yellow small {
+  color: #713f12;
+}
+
+.live-race-flag--red {
+  background: #991b1b;
+}
+
+.live-race-flag--checkered {
+  background: #151515;
+}
+
+.live-race-flag--warmup {
+  background: #c2410c;
+}
+
+.live-race-flag--stopped,
+.live-race-flag--inactive {
+  background: #4b5563;
+}
+
+.live-race-status__stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  padding: 18px;
+  border-left: 1px solid #e5e7eb;
+}
+
+.live-race-status__stat span {
+  color: #6b7280;
+}
+
+.live-race-status__stat strong {
+  font-size: 1.65rem;
+}
+
+.live-race-updated {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: -12px;
+  padding: 0 4px;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/*
+ * Sections
+ */
+
+.live-favorites-section,
+.live-leaderboard-section {
+  padding: 24px;
+  background: white;
+  border: 1px solid #dedede;
+  border-radius: 18px;
+  box-shadow:
+    0 12px 35px
+    rgb(0 0 0 / 6%);
+}
+
+.live-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.live-section-heading h2 {
+  margin: 0;
+}
+
+.live-section-heading > span {
+  color: #6b7280;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+/*
+ * Driver rows
+ */
+
+.live-favorite-list,
+.live-leaderboard {
+  display: grid;
+  gap: 8px;
+}
+
+.live-driver-row {
+  display: grid;
+  grid-template-columns:
+    72px
+    62px
+    minmax(180px, 1fr)
+    repeat(4, minmax(75px, auto));
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 11px;
+}
+
+.live-driver-row--favorite {
+  background: #fffbeb;
+  border-color: #fcd34d;
+}
+
+.live-driver-row__position {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.live-driver-row__position span,
+.live-driver-stat span {
+  color: #6b7280;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.live-driver-row__position strong {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.live-driver-row__number {
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.live-driver-row__driver {
+  min-width: 0;
+}
+
+.live-driver-row__driver > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-driver-row__driver strong {
+  overflow: hidden;
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-driver-row__driver small {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #6b7280;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-driver-row__star {
+  flex-shrink: 0;
+  color: #d97706;
+}
+
+.live-driver-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.live-driver-stat strong {
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.live-position-change--gain {
+  color: #166534;
+}
+
+.live-position-change--loss {
+  color: #991b1b;
+}
+
+/*
+ * Empty/error states
+ */
+
+.live-race-loading,
+.live-race-offline,
+.live-empty-card {
+  text-align: center;
+  background: white;
+  border: 1px solid #dedede;
+  border-radius: 18px;
+}
+
+.live-race-loading,
+.live-race-offline {
+  padding: 50px 25px;
+}
+
+.live-race-loading > span,
+.live-race-offline > span {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 4rem;
+}
+
+.live-race-offline h2 {
+  margin: 0 0 9px;
+}
+
+.live-race-offline p {
+  max-width: 600px;
+  margin: 8px auto;
+  color: #6b7280;
+  line-height: 1.55;
+}
+
+.live-race-offline button {
+  margin-top: 18px;
+  padding: 10px 15px;
+  color: white;
+  background: #202124;
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.live-empty-card {
+  padding: 26px;
+  color: #6b7280;
+}
+
+.live-empty-card p {
+  margin: 0;
+}
+
+.live-race-warning {
+  margin: 0;
+  padding: 12px 14px;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  font-size: 0.82rem;
+}
+
+.live-race-footer {
+  color: #6b7280;
+  text-align: center;
+  font-size: 0.72rem;
+}
+
+/*
+ * Tablet
+ */
+
+@media (max-width: 900px) {
+  .live-race-status {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .live-race-flag {
+    grid-column: 1 / -1;
+  }
+
+  .live-race-status__stat {
+    border-top:
+      1px solid #e5e7eb;
+  }
+
+  .live-driver-row {
+    grid-template-columns:
+      55px
+      52px
+      minmax(150px, 1fr)
+      repeat(2, auto);
+  }
+
+  .live-driver-stat:nth-of-type(3),
+  .live-driver-stat:nth-of-type(4) {
+    display: none;
+  }
+}
+
+/*
+ * Phone
+ */
+
+@media (max-width: 600px) {
+  .live-race-heading {
+    flex-direction: column;
+  }
+
+  .live-race-refresh {
+    width: 100%;
+  }
+
+  .live-race-status {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .live-race-updated {
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .live-favorites-section,
+  .live-leaderboard-section {
+    padding: 14px;
+  }
+
+  .live-section-heading {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .live-driver-row {
+    grid-template-columns:
+      46px
+      46px
+      minmax(0, 1fr)
+      auto;
+    gap: 7px;
+    padding: 11px 9px;
+  }
+
+  .live-driver-row__position strong {
+    font-size: 1.35rem;
+  }
+
+  .live-driver-row__number {
+    font-size: 0.88rem;
+  }
+
+  .live-driver-stat {
+    display: none;
+  }
+
+  /*
+   * Keep the position-change stat
+   * visible on phones.
+   */
+  .live-driver-stat:nth-of-type(2) {
+    display: flex;
+    text-align: right;
+  }
+}
+
+.live-stage-card {
+  padding: 22px 24px;
+  background: white;
+  border: 1px solid #dedede;
+  border-radius: 16px;
+  box-shadow:
+    0 12px 35px
+    rgb(0 0 0 / 6%);
+}
+
+.live-stage-card__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.live-stage-card__heading h2 {
+  margin: 0;
+}
+
+.live-stage-card__heading > strong {
+  font-size: 1.15rem;
+}
+
+.live-stage-card__details {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 15px;
+  color: #6b7280;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.live-stage-progress {
+  width: 100%;
+  height: 12px;
+  margin-top: 12px;
+  overflow: hidden;
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+
+.live-stage-progress__fill {
+  height: 100%;
+  background: #202124;
+  border-radius: inherit;
+  transition: width 300ms ease;
+}
+
+@media (max-width: 600px) {
+  .live-stage-card__heading,
+  .live-stage-card__details {
+    flex-direction: column;
+    gap: 5px;
+  }
+}

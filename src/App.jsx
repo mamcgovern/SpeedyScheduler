@@ -1,13 +1,17 @@
 import {
   useEffect,
-  useRef,
   useState,
 } from "react";
+
 import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth";
-import { Route, Routes } from "react-router";
+
+import {
+  Route,
+  Routes,
+} from "react-router";
 
 import { auth } from "./firebase";
 import initialEvents from "./data/events.json";
@@ -19,9 +23,10 @@ import SchedulerPage from "./pages/SchedulerPage";
 import MySchedulePage from "./pages/MySchedulePage";
 import EventsPage from "./pages/EventsPage";
 import SpottersGuidePage from "./pages/SpottersGuidePage";
-import SignInPage from "./pages/SignInPage";
 import WeekendNotesPage from "./pages/WeekendNotesPage";
 import InstallPage from "./pages/InstallPage";
+import SignInPage from "./pages/SignInPage";
+import LiveRacePage from "./pages/LiveRacePage";
 
 import {
   saveChecklist,
@@ -33,43 +38,54 @@ import {
 
 import "./styles/index.css";
 
-const NOTES_SAVE_DELAY = 700;
-
 function App() {
-  const [events, setEvents] =
-    useState(initialEvents);
+  const [
+    events,
+    setEvents,
+  ] = useState(initialEvents);
 
   const [
     favoriteDrivers,
     setFavoriteDrivers,
+  ] = useState({
+    Cup: [],
+    ORielly: [],
+  });
+
+  const [
+    notes,
+    setNotes,
+  ] = useState("");
+
+  const [
+    checklist,
+    setChecklist,
   ] = useState([]);
 
-  const [notes, setNotes] = useState("");
-  const [notesSaveStatus, setNotesSaveStatus] =
-    useState("saved");
+  const [
+    user,
+    setUser,
+  ] = useState(null);
 
-  const [checklist, setChecklist] =
-    useState([]);
+  const [
+    authLoading,
+    setAuthLoading,
+  ] = useState(true);
 
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] =
-    useState(true);
   const [
     scheduleLoading,
     setScheduleLoading,
   ] = useState(true);
 
-  const notesSaveTimerRef = useRef(null);
-  const latestNotesRef = useRef("");
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-        setAuthLoading(false);
-      },
-    );
+    const unsubscribe =
+      onAuthStateChanged(
+        auth,
+        (currentUser) => {
+          setUser(currentUser);
+          setAuthLoading(false);
+        },
+      );
 
     return unsubscribe;
   }, []);
@@ -84,7 +100,9 @@ function App() {
 
     const unsubscribe =
       subscribeToSharedSchedule(
-        async (sharedSchedule) => {
+        async (
+          sharedSchedule,
+        ) => {
           if (!sharedSchedule) {
             const initiallySelectedEventIds =
               initialEvents
@@ -93,72 +111,128 @@ function App() {
                     event.required ||
                     event.selected,
                 )
-                .map((event) => event.id);
+                .map(
+                  (event) =>
+                    event.id,
+                );
 
             try {
               await saveSelectedEventIds(
                 initiallySelectedEventIds,
               );
 
-              await saveFavoriteDrivers([]);
+              await saveFavoriteDrivers({
+                Cup: [],
+                ORielly: [],
+              });
+
               await saveNotes("");
               await saveChecklist([]);
             } catch (error) {
               console.error(
-                "Could not create the shared schedule:",
+                "Could not create shared schedule:",
                 error,
               );
 
-              setScheduleLoading(false);
+              setScheduleLoading(
+                false,
+              );
             }
 
             return;
           }
 
-          const selectedEventIds = new Set(
-            sharedSchedule.selectedEventIds ??
-            [],
-          );
+          const selectedEventIds =
+            new Set(
+              sharedSchedule.selectedEventIds ??
+              [],
+            );
 
           const updatedEvents =
-            initialEvents.map((event) => ({
-              ...event,
-              selected:
-                event.required ||
-                selectedEventIds.has(
-                  event.id,
-                ),
-            }));
+            initialEvents.map(
+              (event) => ({
+                ...event,
+
+                selected:
+                  event.required ||
+                  selectedEventIds.has(
+                    event.id,
+                  ),
+              }),
+            );
 
           setEvents(updatedEvents);
 
-          setFavoriteDrivers(
-            Array.isArray(
-              sharedSchedule.favoriteDrivers,
-            )
-              ? sharedSchedule.favoriteDrivers.slice(
-                0,
-                3,
-              )
-              : [],
-          );
+          const storedFavorites =
+            sharedSchedule.favoriteDrivers;
 
-          const sharedNotes =
+          /*
+           * New format:
+           *
+           * favoriteDrivers: {
+           *   Cup: [],
+           *   ORielly: []
+           * }
+           */
+          if (
+            storedFavorites &&
+            typeof storedFavorites ===
+            "object" &&
+            !Array.isArray(
+              storedFavorites,
+            )
+          ) {
+            setFavoriteDrivers({
+              Cup: Array.isArray(
+                storedFavorites.Cup,
+              )
+                ? storedFavorites.Cup.slice(
+                  0,
+                  3,
+                )
+                : [],
+
+              ORielly: Array.isArray(
+                storedFavorites.ORielly,
+              )
+                ? storedFavorites.ORielly.slice(
+                  0,
+                  3,
+                )
+                : [],
+            });
+          } else {
+            /*
+             * Migration from the old format:
+             *
+             * favoriteDrivers: [
+             *   "Kyle Larson",
+             *   ...
+             * ]
+             *
+             * Existing favorites become
+             * Cup favorites.
+             */
+            setFavoriteDrivers({
+              Cup: Array.isArray(
+                storedFavorites,
+              )
+                ? storedFavorites.slice(
+                  0,
+                  3,
+                )
+                : [],
+
+              ORielly: [],
+            });
+          }
+
+          setNotes(
             typeof sharedSchedule.notes ===
               "string"
               ? sharedSchedule.notes
-              : "";
-
-          /*
-           * Do not overwrite text while this device
-           * has a pending local save.
-           */
-          if (!notesSaveTimerRef.current) {
-            setNotes(sharedNotes);
-            latestNotesRef.current =
-              sharedNotes;
-            setNotesSaveStatus("saved");
-          }
+              : "",
+          );
 
           setChecklist(
             Array.isArray(
@@ -172,7 +246,7 @@ function App() {
         },
         (error) => {
           console.error(
-            "Could not load the shared schedule:",
+            "Could not load shared schedule:",
             error,
           );
 
@@ -183,26 +257,15 @@ function App() {
     return unsubscribe;
   }, [user]);
 
-  /*
-   * Clear any pending note timer if App unmounts.
-   */
-  useEffect(() => {
-    return () => {
-      if (notesSaveTimerRef.current) {
-        window.clearTimeout(
-          notesSaveTimerRef.current,
-        );
-      }
-    };
-  }, []);
-
   async function updateEventSelection(
     eventId,
     shouldBeSelected,
   ) {
-    const eventToUpdate = events.find(
-      (event) => event.id === eventId,
-    );
+    const eventToUpdate =
+      events.find(
+        (event) =>
+          event.id === eventId,
+      );
 
     if (!eventToUpdate) {
       return;
@@ -215,28 +278,38 @@ function App() {
       return;
     }
 
-    const previousEvents = events;
+    const previousEvents =
+      events;
 
-    const updatedEvents = events.map(
-      (event) => {
-        if (event.id !== eventId) {
+    const updatedEvents =
+      events.map((event) => {
+        if (
+          event.id !== eventId
+        ) {
           return event;
         }
 
         return {
           ...event,
+
           selected:
             event.required ||
             shouldBeSelected,
         };
-      },
-    );
+      });
 
     setEvents(updatedEvents);
 
-    const selectedEventIds = updatedEvents
-      .filter((event) => event.selected)
-      .map((event) => event.id);
+    const selectedEventIds =
+      updatedEvents
+        .filter(
+          (event) =>
+            event.selected,
+        )
+        .map(
+          (event) =>
+            event.id,
+        );
 
     try {
       await saveSelectedEventIds(
@@ -244,14 +317,14 @@ function App() {
       );
     } catch (error) {
       console.error(
-        "Could not save the shared schedule:",
+        "Could not save schedule:",
         error,
       );
 
       setEvents(previousEvents);
 
       window.alert(
-        "The shared schedule could not be updated. Please try again.",
+        "The shared schedule could not be updated.",
       );
     }
   }
@@ -259,21 +332,36 @@ function App() {
   async function updateFavoriteDrivers(
     updatedFavorites,
   ) {
-    if (!Array.isArray(updatedFavorites)) {
-      return;
-    }
+    const sanitizedFavorites = {
+      Cup: Array.isArray(
+        updatedFavorites?.Cup,
+      )
+        ? updatedFavorites.Cup.slice(
+          0,
+          3,
+        )
+        : [],
 
-    const limitedFavorites =
-      updatedFavorites.slice(0, 3);
+      ORielly: Array.isArray(
+        updatedFavorites?.ORielly,
+      )
+        ? updatedFavorites.ORielly.slice(
+          0,
+          3,
+        )
+        : [],
+    };
 
     const previousFavorites =
       favoriteDrivers;
 
-    setFavoriteDrivers(limitedFavorites);
+    setFavoriteDrivers(
+      sanitizedFavorites,
+    );
 
     try {
       await saveFavoriteDrivers(
-        limitedFavorites,
+        sanitizedFavorites,
       );
     } catch (error) {
       console.error(
@@ -286,26 +374,26 @@ function App() {
       );
 
       window.alert(
-        "Favorite drivers could not be updated. Please try again.",
+        "Favorite drivers could not be updated.",
       );
     }
   }
 
-  /*
-   * Update the text immediately, but wait until
-   * typing pauses for 700 ms before writing to
-   * Firestore.
-   */
-  async function updateNotes(updatedNotes) {
-    const previousNotes = notes;
+  async function updateNotes(
+    updatedNotes,
+  ) {
+    const previousNotes =
+      notes;
 
     setNotes(updatedNotes);
 
     try {
-      await saveNotes(updatedNotes);
+      await saveNotes(
+        updatedNotes,
+      );
     } catch (error) {
       console.error(
-        "Could not save weekend notes:",
+        "Could not save notes:",
         error,
       );
 
@@ -315,35 +403,23 @@ function App() {
     }
   }
 
-  async function retryNotesSave() {
-    setNotesSaveStatus("saving");
-
-    try {
-      await saveNotes(
-        latestNotesRef.current,
-      );
-
-      setNotesSaveStatus("saved");
-    } catch (error) {
-      console.error(
-        "Could not save weekend notes:",
-        error,
-      );
-
-      setNotesSaveStatus("error");
-    }
-  }
-
   async function updateChecklist(
     updatedChecklist,
   ) {
-    if (!Array.isArray(updatedChecklist)) {
+    if (
+      !Array.isArray(
+        updatedChecklist,
+      )
+    ) {
       return;
     }
 
-    const previousChecklist = checklist;
+    const previousChecklist =
+      checklist;
 
-    setChecklist(updatedChecklist);
+    setChecklist(
+      updatedChecklist,
+    );
 
     try {
       await saveChecklist(
@@ -351,35 +427,22 @@ function App() {
       );
     } catch (error) {
       console.error(
-        "Could not save the checklist:",
+        "Could not save checklist:",
         error,
       );
 
-      setChecklist(previousChecklist);
+      setChecklist(
+        previousChecklist,
+      );
 
       window.alert(
-        "The checklist could not be saved. Please try again.",
+        "The checklist could not be saved.",
       );
     }
   }
 
   async function handleSignOut() {
     try {
-      /*
-       * Save pending notes before signing out.
-       */
-      if (notesSaveTimerRef.current) {
-        window.clearTimeout(
-          notesSaveTimerRef.current,
-        );
-
-        notesSaveTimerRef.current = null;
-
-        await saveNotes(
-          latestNotesRef.current,
-        );
-      }
-
       await signOut(auth);
     } catch (error) {
       console.error(
@@ -388,7 +451,7 @@ function App() {
       );
 
       window.alert(
-        "You could not be signed out. Please try again.",
+        "You could not be signed out.",
       );
     }
   }
@@ -396,7 +459,9 @@ function App() {
   if (authLoading) {
     return (
       <main className="app-loading">
-        <p>Loading Speedy Scheduler...</p>
+        <p>
+          Loading Speedy Scheduler...
+        </p>
       </main>
     );
   }
@@ -408,7 +473,9 @@ function App() {
   if (scheduleLoading) {
     return (
       <main className="app-loading">
-        <p>Loading shared schedule...</p>
+        <p>
+          Loading shared schedule...
+        </p>
       </main>
     );
   }
@@ -417,7 +484,9 @@ function App() {
     <>
       <Navbar
         user={user}
-        onSignOut={handleSignOut}
+        onSignOut={
+          handleSignOut
+        }
       />
 
       <main className="app">
@@ -425,7 +494,9 @@ function App() {
           <Route
             path="/"
             element={
-              <HomePage events={events} />
+              <HomePage
+                events={events}
+              />
             }
           />
 
@@ -475,22 +546,41 @@ function App() {
               />
             }
           />
+          
+          <Route
+            path="/live"
+            element={
+              <LiveRacePage
+                favoriteDrivers={
+                  favoriteDrivers
+                }
+              />
+            }
+          />
 
           <Route
             path="/weekend-notes"
             element={
               <WeekendNotesPage
                 notes={notes}
-                checklist={checklist}
-                onUpdateNotes={updateNotes}
-                onUpdateChecklist={updateChecklist}
+                checklist={
+                  checklist
+                }
+                onUpdateNotes={
+                  updateNotes
+                }
+                onUpdateChecklist={
+                  updateChecklist
+                }
               />
             }
           />
-          
+
           <Route
             path="/install"
-            element={<InstallPage />}
+            element={
+              <InstallPage />
+            }
           />
         </Routes>
       </main>

@@ -1,8 +1,8 @@
 import {
-    doc,
-    onSnapshot,
-    serverTimestamp,
-    setDoc,
+  doc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -10,60 +10,64 @@ import { db } from "../firebase";
 const SCHEDULE_ID = "iowa-2026";
 
 const scheduleReference = doc(
-    db,
-    "sharedSchedules",
-    SCHEDULE_ID
+  db,
+  "sharedSchedules",
+  SCHEDULE_ID,
 );
 
 export function subscribeToSharedSchedule(
-    onScheduleChange,
-    onError
+  onScheduleChange,
+  onError,
 ) {
-    return onSnapshot(
-        scheduleReference,
-        (snapshot) => {
-            if (!snapshot.exists()) {
-                onScheduleChange(null);
-                return;
-            }
+  return onSnapshot(
+    scheduleReference,
+    (snapshot) => {
+      if (!snapshot.exists()) {
+        onScheduleChange(null);
+        return;
+      }
 
-            onScheduleChange(snapshot.data());
-        },
-        onError
-    );
+      onScheduleChange(
+        snapshot.data(),
+      );
+    },
+    onError,
+  );
 }
 
 export async function saveSelectedEventIds(
-    selectedEventIds
+  selectedEventIds,
 ) {
-    await setDoc(
-        scheduleReference,
-        {
-            selectedEventIds,
-            updatedAt: serverTimestamp(),
-        },
-        {
-            merge: true,
-        }
-    );
+  await setDoc(
+    scheduleReference,
+    {
+      selectedEventIds,
+      updatedAt: serverTimestamp(),
+    },
+    {
+      merge: true,
+    },
+  );
 }
 
 export async function saveFavoriteDrivers(
-    favoriteDrivers
+  favoriteDrivers,
 ) {
-    await setDoc(
-        scheduleReference,
-        {
-            favoriteDrivers,
-            updatedAt: serverTimestamp(),
-        },
-        {
-            merge: true,
-        }
-    );
+  await setDoc(
+    scheduleReference,
+    {
+      favoriteDrivers,
+      updatedAt: serverTimestamp(),
+    },
+    {
+      merge: true,
+    },
+  );
 }
 
-export async function saveNotes(notes) {
+export async function saveNotes(
+  notes,
+) {
   await setDoc(
     scheduleReference,
     {
@@ -76,7 +80,9 @@ export async function saveNotes(notes) {
   );
 }
 
-export async function saveChecklist(checklist) {
+export async function saveChecklist(
+  checklist,
+) {
   await setDoc(
     scheduleReference,
     {

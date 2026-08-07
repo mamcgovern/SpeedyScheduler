@@ -187,6 +187,24 @@ function Navbar() {
                             </NavLink>
 
                             <NavLink
+                                to="/live"
+                                className="navbar__dropdown-link"
+                                onClick={closeMenu}
+                            >
+                                <span>🏁</span>
+
+                                <span>
+                                    <strong>
+                                        Live Race
+                                    </strong>
+
+                                    <small>
+                                        Running positions & live scoring
+                                    </small>
+                                </span>
+                            </NavLink>
+
+                            <NavLink
                                 to="/weekend-notes"
                                 className="navbar__dropdown-link"
                                 onClick={closeMenu}
