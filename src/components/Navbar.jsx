@@ -153,23 +153,6 @@ function Navbar() {
                             </NavLink>
 
                             <NavLink
-                                to="/racing-events"
-                                className="navbar__dropdown-link"
-                                onClick={closeMenu}
-                            >
-                                <span>🏁</span>
-
-                                <span>
-                                    <strong>
-                                        Racing Events
-                                    </strong>
-                                    <small>
-                                        Browse the full racing event list
-                                    </small>
-                                </span>
-                            </NavLink>
-
-                            <NavLink
                                 to="/spotters-guide"
                                 className="navbar__dropdown-link"
                                 onClick={closeMenu}

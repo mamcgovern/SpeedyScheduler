@@ -272,13 +272,13 @@ function HomePage({ events }) {
                     </Link>
 
                     <Link
-                        to="/events"
+                        to="/live"
                         className="quick-link-card"
                     >
                         <span>🏁</span>
 
                         <div>
-                            <h3>Race Schedule</h3>
+                            <h3>Race Standings</h3>
 
                             <p>
                                 View all on-track racing

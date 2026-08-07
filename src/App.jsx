@@ -21,7 +21,6 @@ import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import SchedulerPage from "./pages/SchedulerPage";
 import MySchedulePage from "./pages/MySchedulePage";
-import EventsPage from "./pages/EventsPage";
 import SpottersGuidePage from "./pages/SpottersGuidePage";
 import WeekendNotesPage from "./pages/WeekendNotesPage";
 import InstallPage from "./pages/InstallPage";
@@ -525,15 +524,6 @@ function App() {
           />
 
           <Route
-            path="/events"
-            element={
-              <EventsPage
-                events={events}
-              />
-            }
-          />
-
-          <Route
             path="/spotters-guide"
             element={
               <SpottersGuidePage
@@ -546,7 +536,7 @@ function App() {
               />
             }
           />
-          
+
           <Route
             path="/live"
             element={
